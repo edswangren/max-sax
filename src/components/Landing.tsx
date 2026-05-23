@@ -32,7 +32,6 @@ const greetings = [
   "Daily reps. That's how chairs flip.",
   "Welcome back, legend.",
   "The horn's not gonna play itself.",
-  "TBA Exemplary band has standards. Match 'em.",
 ]
 
 export default function Landing() {
