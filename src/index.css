@@ -1,20 +1,73 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brass: #d4a017;
-  --color-brass-dim: #a87f12;
-  --color-maroon: #8b1a1a;
-  --color-maroon-dim: #6b1414;
-  --color-emerald-go: #2eb872;
-  --color-emerald-go-dim: #228955;
-  --color-ink: #0c0a06;
-  --color-ink-light: #1c1812;
-  --color-ink-lighter: #2a241c;
-  --color-cream: #d9cfb8;
+  --color-brass: #f5b50f;
+  --color-brass-dim: #c9930a;
+  --color-brass-glow: #ffd25c;
+  --color-maroon: #d12932;
+  --color-maroon-dim: #a51e26;
+  --color-emerald-go: #34c97e;
+  --color-emerald-dim: #259761;
+  --color-electric: #22d3ee;
+  --color-electric-dim: #0ea5b8;
+  --color-magenta: #ec4899;
+  --color-magenta-dim: #be2767;
+  --color-amethyst: #a855f7;
+  --color-amethyst-dim: #7d33c7;
+  --color-tangerine: #fb923c;
+  --color-tangerine-dim: #d46b1e;
+  --color-ink: #110b04;
+  --color-ink-light: #1f150a;
+  --color-ink-lighter: #2e2110;
+  --color-cream: #f0e4c8;
 }
 
 body {
-  @apply bg-ink text-white min-h-screen;
+  @apply text-white min-h-screen;
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--color-ink);
+  background-image:
+    radial-gradient(ellipse at 12% 8%, rgba(245, 181, 15, 0.10), transparent 40%),
+    radial-gradient(ellipse at 92% 88%, rgba(209, 41, 50, 0.10), transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.04), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* Faint staff-line pattern overlay — only behind the main scroll area */
+.staff-bg {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 22px,
+    rgba(240, 228, 200, 0.025) 22px,
+    rgba(240, 228, 200, 0.025) 23px
+  );
+}
+
+/* Confetti animation for session-complete */
+@keyframes confetti-fall {
+  0%   { transform: translate3d(0, -20vh, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--cx, 0), 110vh, 0) rotate(720deg); opacity: 0; }
+}
+
+@keyframes pop-in {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-pop-in { animation: pop-in 380ms cubic-bezier(.18,1.4,.55,1) both; }
+.animate-shimmer {
+  background: linear-gradient(110deg, #f5b50f 30%, #ffd25c 50%, #f5b50f 70%);
+  background-size: 200% 100%;
+  animation: shimmer 2.6s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
