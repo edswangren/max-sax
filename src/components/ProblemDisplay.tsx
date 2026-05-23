@@ -15,23 +15,25 @@ export default function ProblemDisplay({ problem, problemNumber, totalProblems }
   const fingerState = fingeringSpec ? getFingering(fingeringSpec.note) : undefined
 
   return (
-    <div className="bg-ink-light rounded-xl border border-ink-lighter p-6">
+    <div className="bg-ink-light rounded-xl border border-ink-lighter p-4 sm:p-6">
       <p className="text-sm text-cream/60 mb-3">
         <span className="text-brass font-bold">{problemNumber}</span>
         <span className="text-ink-lighter"> / </span>
         <span>{totalProblems}</span>
       </p>
 
-      <p className="text-xl text-white mb-3">{questionText}</p>
+      <p className="text-lg sm:text-xl text-white mb-3">{questionText}</p>
 
       {staffSpec && (
-        <div className="bg-ink rounded-lg p-3 inline-block mb-2">
-          <Staff {...staffSpec} />
+        <div className="bg-ink rounded-lg p-3 mb-2 overflow-x-auto -mx-1">
+          <div className="inline-block">
+            <Staff {...staffSpec} />
+          </div>
         </div>
       )}
 
       {fingerState && (
-        <div className="bg-ink rounded-lg p-3 inline-block mb-2">
+        <div className="bg-ink rounded-lg p-3 inline-block mb-2 max-w-full">
           <SaxFingering state={fingerState} />
         </div>
       )}
