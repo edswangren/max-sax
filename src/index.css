@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brass: #d4a017;
+  --color-brass-dim: #a87f12;
+  --color-maroon: #8b1a1a;
+  --color-maroon-dim: #6b1414;
+  --color-emerald-go: #2eb872;
+  --color-emerald-go-dim: #228955;
+  --color-ink: #0c0a06;
+  --color-ink-light: #1c1812;
+  --color-ink-lighter: #2a241c;
+  --color-cream: #d9cfb8;
+}
+
+body {
+  @apply bg-ink text-white min-h-screen;
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
