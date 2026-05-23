@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import SaxLogo from './SaxLogo'
+import EagleLogo from './EagleLogo'
 
 const NAV_INLINE = "hidden min-[480px]:flex items-center gap-4"
 const NAV_BURGER_HIT = "min-[480px]:hidden"
@@ -10,10 +10,8 @@ export default function Layout() {
   const location = useLocation()
   const headerRef = useRef<HTMLElement>(null)
 
-  // close menu on route change
   useEffect(() => { setMenuOpen(false) }, [location.pathname])
 
-  // close on outside click
   useEffect(() => {
     if (!menuOpen) return
     function onClick(e: MouseEvent) {
@@ -25,31 +23,29 @@ export default function Layout() {
     return () => document.removeEventListener('mousedown', onClick)
   }, [menuOpen])
 
-  const linkCls = "text-ink/75 hover:text-ink transition-colors font-bold text-sm"
+  const linkCls = "text-ink/80 hover:text-royal transition-colors font-bold text-sm"
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header ref={headerRef} className="bg-brass relative">
-        <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-x-6">
+      <header ref={headerRef} className="relative bg-brass border-b-4 border-royal shadow-lg">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-x-4">
           <Link
             to="/"
             className="flex items-center gap-2 text-2xl sm:text-3xl font-black tracking-tight text-ink hover:text-ink/70 transition-colors leading-none"
           >
-            <SaxLogo size={32} className="-my-1" />
+            <EagleLogo size={42} variant="royal" className="-my-1 shrink-0" />
             <span>
-              <span className="text-maroon">Max</span><span className="text-ink">SAX</span><span className="text-maroon">.</span>
+              <span className="text-royal">Max</span><span className="text-ink">SAX</span><span className="text-royal">.</span>
             </span>
           </Link>
 
-          {/* Inline nav — visible only when there's room */}
           <nav className={NAV_INLINE}>
             <Link to="/" className={linkCls}>Home</Link>
             <Link to="/history" className={linkCls}>History</Link>
-            <Link to="/weak-spots" className="text-ink/75 hover:text-maroon transition-colors font-bold text-sm">Weak&nbsp;Spots</Link>
+            <Link to="/weak-spots" className="text-ink/80 hover:text-maroon transition-colors font-bold text-sm">Weak&nbsp;Spots</Link>
             <Link to="/settings" className={linkCls}>Settings</Link>
           </nav>
 
-          {/* Hamburger — visible only when nav wouldn't fit */}
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
@@ -67,13 +63,12 @@ export default function Layout() {
           </button>
         </div>
 
-        {/* Dropdown panel — only when burger is the active control */}
         {menuOpen && (
           <div
-            className={`${NAV_BURGER_HIT} absolute right-2 top-full mt-1 min-w-[180px] bg-ink-light border border-ink-lighter rounded-xl shadow-xl overflow-hidden z-50`}
+            className={`${NAV_BURGER_HIT} absolute right-2 top-full mt-1 min-w-[180px] bg-ink-light border border-royal/40 rounded-xl shadow-xl overflow-hidden z-50`}
           >
-            <Link to="/" className="block px-5 py-3 text-cream hover:bg-brass hover:text-ink transition-colors font-bold border-b border-ink-lighter">Home</Link>
-            <Link to="/history" className="block px-5 py-3 text-cream hover:bg-brass hover:text-ink transition-colors font-bold border-b border-ink-lighter">History</Link>
+            <Link to="/" className="block px-5 py-3 text-cream hover:bg-royal hover:text-white transition-colors font-bold border-b border-ink-lighter">Home</Link>
+            <Link to="/history" className="block px-5 py-3 text-cream hover:bg-royal hover:text-white transition-colors font-bold border-b border-ink-lighter">History</Link>
             <Link to="/weak-spots" className="block px-5 py-3 text-cream hover:bg-maroon hover:text-white transition-colors font-bold border-b border-ink-lighter">Weak Spots</Link>
             <Link to="/settings" className="block px-5 py-3 text-cream hover:bg-brass hover:text-ink transition-colors font-bold">Settings</Link>
           </div>

@@ -1,13 +1,25 @@
 import { midiToFrequency } from '../utils/music'
 
-// iOS Safari requires that the AudioContext be created AND resumed AND have
-// at least one source scheduled — all inside the same synchronous user-gesture
-// tick. `await ctx.resume()` breaks the gesture chain, so this module never
-// awaits. We resume fire-and-forget and schedule oscillators a touch in the
-// future so they begin cleanly once the context is running.
+// iOS Safari audio routing has TWO layers:
+//   1. Web Audio API needs the AudioContext created/resumed inside a user gesture
+//      (handled in playSequence + primeForIOS).
+//   2. The system audio session itself starts in a muted/ambient mode that
+//      Web Audio alone WILL NOT flip. The browser will *appear* to play (you'll
+//      even see the speaker indicator in the URL bar) but no sound reaches the
+//      speaker. Playing an HTML <audio> element once is what flips the session
+//      into the audible playback mode. Until that happens, Web Audio is silent.
+//
+// installInteractionUnlock() runs both unlocks on the very first user
+// interaction anywhere in the app, so by the time the user reaches an
+// ear-training drill the system is already audible.
 
 let ctx: AudioContext | null = null
-let unlocked = false
+let webAudioUnlocked = false
+let interactionListenerInstalled = false
+
+// 44-byte valid empty WAV — used as the iOS audio-session primer.
+const SILENT_WAV =
+  'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='
 
 function getContext(): AudioContext {
   if (!ctx) {
@@ -20,10 +32,11 @@ function getContext(): AudioContext {
   return ctx
 }
 
-// Plays a 1-sample silent buffer synchronously — the iOS Web Audio unlock pattern.
-function primeForIOS(c: AudioContext): void {
-  if (unlocked) return
-  unlocked = true
+// Plays a silent buffer through the AudioContext — needed alongside resume()
+// for older iOS releases that won't actually start ticking otherwise.
+function primeWebAudio(c: AudioContext): void {
+  if (webAudioUnlocked) return
+  webAudioUnlocked = true
   try {
     const buf = c.createBuffer(1, 1, 22050)
     const src = c.createBufferSource()
@@ -35,6 +48,51 @@ function primeForIOS(c: AudioContext): void {
   }
 }
 
+// Plays a tiny silent HTML <audio> clip — this is what actually flips iOS's
+// system audio session from ambient/muted into audible playback.
+function primeHTMLAudio(): void {
+  try {
+    const a = new Audio()
+    a.src = SILENT_WAV
+    a.muted = false
+    a.volume = 0.01
+    // play() returns a promise; ignore if blocked
+    const p = a.play()
+    if (p && typeof p.catch === 'function') p.catch(() => { /* ignore */ })
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Installs a one-shot listener that unlocks both Web Audio AND the iOS audio
+ * session on the very first user interaction anywhere in the app.
+ *
+ * Call from app boot. After it fires once, all listeners are torn down.
+ */
+export function installInteractionUnlock(): void {
+  if (interactionListenerInstalled || typeof window === 'undefined') return
+  interactionListenerInstalled = true
+
+  const events: Array<keyof DocumentEventMap> = ['touchstart', 'mousedown', 'keydown']
+
+  const handler = () => {
+    primeHTMLAudio()
+    try {
+      const c = getContext()
+      if (c.state === 'suspended') c.resume().catch(() => { /* ignore */ })
+      primeWebAudio(c)
+    } catch {
+      /* ignore */
+    }
+    for (const e of events) document.removeEventListener(e, handler, true)
+  }
+
+  for (const e of events) {
+    document.addEventListener(e, handler, { capture: true, passive: true })
+  }
+}
+
 interface PlayNote {
   midi: number
   durationMs: number
@@ -42,18 +100,19 @@ interface PlayNote {
 
 /**
  * Schedule a sequence of notes. Must be invoked inside a user gesture
- * (e.g. an onClick handler) on iOS Safari — see comment at top of file.
+ * (e.g. an onClick handler). Fully synchronous so the gesture chain stays
+ * intact for iOS Safari.
  */
 export function playSequence(notes: PlayNote[], gapMs = 30): void {
   const c = getContext()
-  // Fire-and-forget resume so we don't await across the gesture boundary.
   if (c.state === 'suspended') {
     c.resume().catch(() => { /* ignore */ })
   }
-  primeForIOS(c)
+  primeWebAudio(c)
+  // Belt-and-suspenders: if Play is the very first interaction, also flip
+  // the iOS audio session right here.
+  primeHTMLAudio()
 
-  // Small lead-time so the first oscillator starts cleanly once the
-  // resume() promise has settled.
   let cursor = c.currentTime + 0.08
   for (const n of notes) {
     playOne(c, n.midi, n.durationMs, cursor)

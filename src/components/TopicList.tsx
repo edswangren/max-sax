@@ -6,7 +6,7 @@ import CategoryIcon from './CategoryIcon'
 
 const CAT_ACCENT: Record<CategoryId, { text: string; glow: string; pill: string }> = {
   'note-reading':  { text: 'text-brass',     glow: 'hover:shadow-[0_0_22px_rgba(245,181,15,0.28)] hover:border-brass/50',         pill: 'bg-brass/20 text-brass' },
-  'scales-keys':   { text: 'text-maroon',    glow: 'hover:shadow-[0_0_22px_rgba(209,41,50,0.28)] hover:border-maroon/50',         pill: 'bg-maroon/20 text-maroon' },
+  'scales-keys':   { text: 'text-royal-glow', glow: 'hover:shadow-[0_0_22px_rgba(29,78,216,0.35)] hover:border-royal/50',          pill: 'bg-royal/25 text-royal-glow' },
   'rhythm':        { text: 'text-emerald-go',glow: 'hover:shadow-[0_0_22px_rgba(52,201,126,0.28)] hover:border-emerald-go/50',    pill: 'bg-emerald-go/20 text-emerald-go' },
   'fingerings':    { text: 'text-tangerine', glow: 'hover:shadow-[0_0_22px_rgba(251,146,60,0.28)] hover:border-tangerine/50',     pill: 'bg-tangerine/20 text-tangerine' },
   'theory-vocab':  { text: 'text-amethyst',  glow: 'hover:shadow-[0_0_22px_rgba(168,85,247,0.28)] hover:border-amethyst/50',      pill: 'bg-amethyst/20 text-amethyst' },
