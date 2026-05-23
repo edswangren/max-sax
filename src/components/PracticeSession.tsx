@@ -11,6 +11,7 @@ import { saveSession, type Mistake } from '../store/sessions'
 import { getTopic } from '../data/catalog'
 import type { Difficulty, GeneratedProblem } from '../templates/types'
 import { pick } from '../utils/random'
+import Confetti from './Confetti'
 
 const TOTAL_PROBLEMS = 10
 
@@ -141,24 +142,34 @@ export default function PracticeSession() {
       : score >= TOTAL_PROBLEMS * 0.6 ? 'text-amber-400'
       : 'text-maroon'
 
+    const isPerfect = score === TOTAL_PROBLEMS
+    const cardBorder = isPerfect ? 'border-brass/60' : 'border-ink-lighter'
     return (
-      <div className="text-center">
-        <h1 className="text-2xl font-black mb-4">Session Complete</h1>
-        <p className="text-sm text-cream/70 mb-2">{topic?.title ?? topicId} &middot; {difficulty}</p>
-        <div className="bg-ink-light rounded-xl border border-ink-lighter p-8 mb-6">
-          <p className={`text-6xl font-black mb-3 ${scoreColor}`}>{score}/{TOTAL_PROBLEMS}</p>
-          <p className="text-cream/80 text-lg">{msg}</p>
+      <div className="text-center animate-pop-in">
+        {isPerfect && <Confetti count={60} />}
+        <h1 className="text-2xl sm:text-3xl font-black mb-4">
+          {isPerfect ? <span className="animate-shimmer">Session Complete</span> : 'Session Complete'}
+        </h1>
+        <p className="text-sm text-cream/70 mb-3">{topic?.title ?? topicId} · <span className="capitalize">{difficulty}</span></p>
+        <div className={`bg-ink-light rounded-2xl border-2 ${cardBorder} p-8 mb-6 relative overflow-hidden`}>
+          {isPerfect && (
+            <div className="absolute inset-0 bg-gradient-to-br from-brass/15 via-transparent to-maroon/15 pointer-events-none" />
+          )}
+          <p className={`text-7xl sm:text-8xl font-black mb-3 ${scoreColor} relative`}>
+            {score}<span className="text-cream/30 text-5xl sm:text-6xl">/{TOTAL_PROBLEMS}</span>
+          </p>
+          <p className="text-cream/85 text-lg sm:text-xl font-bold relative">{msg}</p>
         </div>
-        <div className="flex gap-4 justify-center flex-wrap">
+        <div className="flex gap-3 justify-center flex-wrap">
           <button
             onClick={reset}
-            className="bg-brass text-ink font-bold px-6 py-2 rounded-xl hover:bg-brass-dim transition-colors"
+            className="bg-brass text-ink font-bold px-6 py-2.5 rounded-xl hover:bg-brass-dim transition-colors shadow-[0_0_18px_rgba(245,181,15,0.35)]"
           >
             Run it back
           </button>
           <Link
             to="/"
-            className="border border-ink-lighter text-cream/70 px-6 py-2 rounded-xl hover:border-white/30 hover:text-white transition-colors"
+            className="border border-ink-lighter text-cream/80 px-6 py-2.5 rounded-xl hover:border-white/40 hover:text-white transition-colors"
           >
             Home
           </Link>
