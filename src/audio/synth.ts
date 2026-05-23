@@ -1,6 +1,13 @@
 import { midiToFrequency } from '../utils/music'
 
+// iOS Safari requires that the AudioContext be created AND resumed AND have
+// at least one source scheduled — all inside the same synchronous user-gesture
+// tick. `await ctx.resume()` breaks the gesture chain, so this module never
+// awaits. We resume fire-and-forget and schedule oscillators a touch in the
+// future so they begin cleanly once the context is running.
+
 let ctx: AudioContext | null = null
+let unlocked = false
 
 function getContext(): AudioContext {
   if (!ctx) {
@@ -13,18 +20,41 @@ function getContext(): AudioContext {
   return ctx
 }
 
+// Plays a 1-sample silent buffer synchronously — the iOS Web Audio unlock pattern.
+function primeForIOS(c: AudioContext): void {
+  if (unlocked) return
+  unlocked = true
+  try {
+    const buf = c.createBuffer(1, 1, 22050)
+    const src = c.createBufferSource()
+    src.buffer = buf
+    src.connect(c.destination)
+    src.start(0)
+  } catch {
+    /* ignore */
+  }
+}
+
 interface PlayNote {
   midi: number
   durationMs: number
 }
 
-/** Play a sequence of notes through a reedy-ish synth. Awaits resume() if context is suspended. */
-export async function playSequence(notes: PlayNote[], gapMs = 30): Promise<void> {
+/**
+ * Schedule a sequence of notes. Must be invoked inside a user gesture
+ * (e.g. an onClick handler) on iOS Safari — see comment at top of file.
+ */
+export function playSequence(notes: PlayNote[], gapMs = 30): void {
   const c = getContext()
+  // Fire-and-forget resume so we don't await across the gesture boundary.
   if (c.state === 'suspended') {
-    try { await c.resume() } catch { /* ignore */ }
+    c.resume().catch(() => { /* ignore */ })
   }
-  let cursor = c.currentTime + 0.05
+  primeForIOS(c)
+
+  // Small lead-time so the first oscillator starts cleanly once the
+  // resume() promise has settled.
+  let cursor = c.currentTime + 0.08
   for (const n of notes) {
     playOne(c, n.midi, n.durationMs, cursor)
     cursor += (n.durationMs + gapMs) / 1000
@@ -37,7 +67,6 @@ function playOne(c: AudioContext, midi: number, durationMs: number, startTime: n
   osc.type = 'sawtooth'
   osc.frequency.value = midiToFrequency(midi)
 
-  // slight detuned partial for a richer reed-like tone
   const osc2 = c.createOscillator()
   osc2.type = 'triangle'
   osc2.frequency.value = midiToFrequency(midi)
