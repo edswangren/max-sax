@@ -29,7 +29,7 @@ function makeProblem(d: Difficulty): GeneratedProblem {
       { label: '1st note', value: 'first' },
       { label: '2nd note', value: 'second' },
     ],
-    audioSpec: { notes, gapMs: 80 },
+    audioSpec: { notes, gapMs: 80, timbre: 'clean' },
   }
 }
 

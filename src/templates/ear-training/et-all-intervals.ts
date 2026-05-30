@@ -35,7 +35,7 @@ function makeProblem(d: Difficulty): GeneratedProblem {
     correctAnswer: p.name,
     answerFormat: 'multiple-choice',
     choices: shuffle(choicesPool).map((x) => ({ label: `${x.name} (${intervalLongName(x.name)})`, value: x.name })),
-    audioSpec: { notes, gapMs: 60 },
+    audioSpec: { notes, gapMs: 60, timbre: 'clean' },
   }
 }
 

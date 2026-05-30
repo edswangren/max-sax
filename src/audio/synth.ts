@@ -98,12 +98,28 @@ interface PlayNote {
   durationMs: number
 }
 
+export type Timbre = 'reed' | 'clean'
+
+export interface PlayOptions {
+  gapMs?: number
+  timbre?: Timbre
+  /** Steady detune in cents (single-oscillator path only). Used by the tuning drill. */
+  detuneCents?: number
+}
+
 /**
  * Schedule a sequence of notes. Must be invoked inside a user gesture
  * (e.g. an onClick handler). Fully synchronous so the gesture chain stays
  * intact for iOS Safari.
+ *
+ * Backwards-compatible: second arg may be a number (legacy gapMs).
  */
-export function playSequence(notes: PlayNote[], gapMs = 30): void {
+export function playSequence(notes: PlayNote[], optsOrGap: number | PlayOptions = {}): void {
+  const opts: PlayOptions = typeof optsOrGap === 'number' ? { gapMs: optsOrGap } : optsOrGap
+  const gapMs = opts.gapMs ?? 30
+  const timbre = opts.timbre ?? 'reed'
+  const detuneCents = opts.detuneCents ?? 0
+
   const c = getContext()
   if (c.state === 'suspended') {
     c.resume().catch(() => { /* ignore */ })
@@ -115,42 +131,65 @@ export function playSequence(notes: PlayNote[], gapMs = 30): void {
 
   let cursor = c.currentTime + 0.08
   for (const n of notes) {
-    playOne(c, n.midi, n.durationMs, cursor)
+    playOne(c, n.midi, n.durationMs, cursor, timbre, detuneCents)
     cursor += (n.durationMs + gapMs) / 1000
   }
 }
 
-function playOne(c: AudioContext, midi: number, durationMs: number, startTime: number): void {
+function playOne(
+  c: AudioContext,
+  midi: number,
+  durationMs: number,
+  startTime: number,
+  timbre: Timbre,
+  detuneCents: number,
+): void {
   const dur = durationMs / 1000
-  const osc = c.createOscillator()
-  osc.type = 'sawtooth'
-  osc.frequency.value = midiToFrequency(midi)
-
-  const osc2 = c.createOscillator()
-  osc2.type = 'triangle'
-  osc2.frequency.value = midiToFrequency(midi)
-  osc2.detune.value = 4
-
-  const filter = c.createBiquadFilter()
-  filter.type = 'lowpass'
-  filter.frequency.value = 2400
-  filter.Q.value = 1.4
 
   const gain = c.createGain()
-  const peak = 0.22
+  const peak = timbre === 'clean' ? 0.18 : 0.22
   const a = 0.015, d = 0.09, sLevel = 0.65, r = 0.18
   gain.gain.setValueAtTime(0, startTime)
   gain.gain.linearRampToValueAtTime(peak, startTime + a)
   gain.gain.linearRampToValueAtTime(peak * sLevel, startTime + a + d)
   gain.gain.setValueAtTime(peak * sLevel, startTime + Math.max(a + d, dur))
   gain.gain.linearRampToValueAtTime(0, startTime + Math.max(a + d, dur) + r)
+  const stopAt = startTime + Math.max(a + d, dur) + r + 0.02
+
+  if (timbre === 'clean') {
+    // Single sine, no filter, no chorus detune. Used for ear-training where
+    // any reediness colors the interval. detuneCents = tuning-drill offset.
+    const osc = c.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.value = midiToFrequency(midi)
+    if (detuneCents) osc.detune.value = detuneCents
+    osc.connect(gain).connect(c.destination)
+    osc.start(startTime)
+    osc.stop(stopAt)
+    return
+  }
+
+  // Reed timbre: 2-osc sawtooth + triangle through a lowpass filter.
+  const osc = c.createOscillator()
+  osc.type = 'sawtooth'
+  osc.frequency.value = midiToFrequency(midi)
+  if (detuneCents) osc.detune.value = detuneCents
+
+  const osc2 = c.createOscillator()
+  osc2.type = 'triangle'
+  osc2.frequency.value = midiToFrequency(midi)
+  osc2.detune.value = 4 + detuneCents
+
+  const filter = c.createBiquadFilter()
+  filter.type = 'lowpass'
+  filter.frequency.value = 2400
+  filter.Q.value = 1.4
 
   osc.connect(filter)
   osc2.connect(filter)
   filter.connect(gain).connect(c.destination)
   osc.start(startTime)
   osc2.start(startTime)
-  const stopAt = startTime + Math.max(a + d, dur) + r + 0.02
   osc.stop(stopAt)
   osc2.stop(stopAt)
 }

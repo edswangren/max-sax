@@ -45,6 +45,7 @@ export const categories: Category[] = [
       { id: 'sk-major-construct',  title: 'Build a major scale',      blurb: 'W-W-H-W-W-W-H from any root' },
       { id: 'sk-identify-scale',   title: 'Name the scale',           blurb: 'From a note sequence' },
       { id: 'sk-transpose',        title: 'Concert pitch transposition', blurb: "Band plays concert. You play... what?" },
+      { id: 'sk-transpose-notes',  title: 'Transpose tonic / 3rd / 5th', blurb: 'Band plays concert F. Your 3rd is...?' },
       { id: 'sk-natural-minor',    title: 'Natural minor scales',     blurb: 'W-H-W-W-H-W-W' },
       { id: 'sk-circle-fifths',    title: 'Circle of fifths',         blurb: 'Next key up or down a fifth' },
     ],

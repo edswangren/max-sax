@@ -1,4 +1,6 @@
 import { pick } from '../utils/random'
+import { playSequence } from '../audio/synth'
+import type { AudioSpec } from '../templates/types'
 
 interface Props {
   correct: boolean
@@ -6,6 +8,7 @@ interface Props {
   userAnswer: string
   onNext: () => void
   checkWork?: string
+  audioSpec?: AudioSpec
 }
 
 const correctQuips = [
@@ -32,7 +35,7 @@ const wrongQuips = [
   "Brain fingerings got crossed. Happens.",
 ]
 
-export default function FeedbackBanner({ correct, correctAnswer, userAnswer, onNext, checkWork }: Props) {
+export default function FeedbackBanner({ correct, correctAnswer, userAnswer, onNext, checkWork, audioSpec }: Props) {
   return (
     <div
       className={`mt-4 rounded-xl border ${
@@ -67,10 +70,27 @@ export default function FeedbackBanner({ correct, correctAnswer, userAnswer, onN
           Next &rarr;
         </button>
       </div>
-      {checkWork && (
+      {(checkWork || audioSpec) && (
         <div className="border-t border-white/10 px-4 py-3 bg-white/5 rounded-b-xl">
-          <p className="text-xs font-bold text-cream/70 uppercase tracking-wide mb-1">Why</p>
-          <p className="text-sm text-cream/80">{checkWork}</p>
+          {checkWork && (
+            <>
+              <p className="text-xs font-bold text-cream/70 uppercase tracking-wide mb-1">Why</p>
+              <p className="text-sm text-cream/80">{checkWork}</p>
+            </>
+          )}
+          {audioSpec && (
+            <button
+              type="button"
+              onClick={() => playSequence(audioSpec.notes, {
+                gapMs: audioSpec.gapMs,
+                timbre: audioSpec.timbre,
+                detuneCents: audioSpec.detuneCents,
+              })}
+              className={`mt-2 bg-brass text-ink font-bold px-4 py-2 rounded-xl hover:bg-brass-dim transition-colors inline-flex items-center gap-2`}
+            >
+              <span aria-hidden>▶</span> Hear it
+            </button>
+          )}
         </div>
       )}
     </div>
