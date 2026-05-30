@@ -41,6 +41,7 @@ export default function Layout() {
 
           <nav className={NAV_INLINE}>
             <Link to="/" className={linkCls}>Home</Link>
+            <Link to="/metronome" className={linkCls}>Metronome</Link>
             <Link to="/history" className={linkCls}>History</Link>
             <Link to="/weak-spots" className="text-ink/80 hover:text-maroon transition-colors font-bold text-sm">Weak&nbsp;Spots</Link>
             <Link to="/settings" className={linkCls}>Settings</Link>
@@ -68,6 +69,7 @@ export default function Layout() {
             className={`${NAV_BURGER_HIT} absolute right-2 top-full mt-1 min-w-[180px] bg-ink-light border border-royal/40 rounded-xl shadow-xl overflow-hidden z-50`}
           >
             <Link to="/" className="block px-5 py-3 text-cream hover:bg-royal hover:text-white transition-colors font-bold border-b border-ink-lighter">Home</Link>
+            <Link to="/metronome" className="block px-5 py-3 text-cream hover:bg-royal hover:text-white transition-colors font-bold border-b border-ink-lighter">Metronome</Link>
             <Link to="/history" className="block px-5 py-3 text-cream hover:bg-royal hover:text-white transition-colors font-bold border-b border-ink-lighter">History</Link>
             <Link to="/weak-spots" className="block px-5 py-3 text-cream hover:bg-maroon hover:text-white transition-colors font-bold border-b border-ink-lighter">Weak Spots</Link>
             <Link to="/settings" className="block px-5 py-3 text-cream hover:bg-brass hover:text-ink transition-colors font-bold">Settings</Link>

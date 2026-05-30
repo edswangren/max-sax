@@ -21,6 +21,7 @@ interface FakeGain {
   gain: {
     setValueAtTime: (...args: unknown[]) => void
     linearRampToValueAtTime: (...args: unknown[]) => void
+    exponentialRampToValueAtTime: (...args: unknown[]) => void
   }
   connect: (...args: unknown[]) => unknown
 }
@@ -66,7 +67,12 @@ function makeFilter(): FakeFilter {
 
 function makeGain(): FakeGain {
   const g: FakeGain = {
-    gain: { setValueAtTime: () => {}, linearRampToValueAtTime: () => {} },
+    gain: {
+      setValueAtTime: () => {},
+      linearRampToValueAtTime: () => {},
+      // metronome uses exponentialRampToValueAtTime on the click tick.
+      exponentialRampToValueAtTime: () => {},
+    } as unknown as FakeGain['gain'],
     connect: () => g,
   }
   return g
@@ -88,15 +94,36 @@ beforeEach(() => {
   oscillators.length = 0
   filters.length = 0
   // jsdom-free: install just what synth.ts touches
-  ;(globalThis as unknown as { window: object }).window = globalThis
-  ;(globalThis as unknown as { document: object }).document = {
+  const w = globalThis as unknown as {
+    window: object
+    document: object
+    AudioContext: typeof FakeAudioContext
+    Audio: unknown
+    setInterval: typeof setInterval
+    clearInterval: typeof clearInterval
+  }
+  w.window = globalThis
+  // window.setInterval needs to exist for startClick; node's globals already do.
+  w.window = Object.assign(w.window, { setInterval: globalThis.setInterval, clearInterval: globalThis.clearInterval })
+  w.document = {
     addEventListener: () => {},
     removeEventListener: () => {},
   }
-  ;(globalThis as unknown as { AudioContext: typeof FakeAudioContext }).AudioContext = FakeAudioContext
-  ;(globalThis as unknown as { Audio: unknown }).Audio = function () {
+  w.AudioContext = FakeAudioContext
+  w.Audio = function () {
     return { src: '', muted: false, volume: 0, play: () => Promise.resolve() }
   }
+})
+
+describe('metronome lifecycle', () => {
+  it('startClick + stopClick toggles isClickRunning()', async () => {
+    const { startClick, stopClick, isClickRunning } = await import('../audio/synth')
+    expect(isClickRunning()).toBe(false)
+    startClick({ bpm: 80, beatsPerMeasure: 4 })
+    expect(isClickRunning()).toBe(true)
+    stopClick()
+    expect(isClickRunning()).toBe(false)
+  })
 })
 
 describe('playSequence timbre', () => {

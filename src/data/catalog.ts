@@ -81,6 +81,9 @@ export const categories: Category[] = [
       { id: 'fg-palm-keys',   title: 'Palm keys',          blurb: 'D, E♭, E, F, F♯ — left palm' },
       { id: 'fg-alternates',  title: 'Alternate fingerings', blurb: 'When to use bis B♭, side B♭, alt F♯' },
       { id: 'fg-altissimo',   title: 'Altissimo intro',    blurb: 'G–A above palm F♯' },
+      { id: 'fg-note-to-fingering-low',    title: 'Pick the fingering (low end)',    blurb: 'Note → fingering, inverse drill' },
+      { id: 'fg-note-to-fingering-octave', title: 'Pick the fingering (octave key)', blurb: 'Note → fingering, D5–C6' },
+      { id: 'fg-note-to-fingering-palm',   title: 'Pick the fingering (palm keys)',  blurb: 'Note → fingering, D6–F♯6' },
     ],
   },
   {

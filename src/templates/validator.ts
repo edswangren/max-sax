@@ -36,6 +36,7 @@ export function checkAnswer(
       return normalizeKeyName(cleaned) === normalizeKeyName(expected)
 
     case 'multiple-choice':
+    case 'fingering-pick':
     case 'text':
       return stripSpaces(cleaned) === stripSpaces(expected)
 

@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import type { AnswerFormat, MultipleChoiceOption } from '../templates/types'
+import SaxFingering from './SaxFingering'
+import { getFingering } from '../data/fingerings'
 
 const formatLabels: Partial<Record<AnswerFormat, string>> = {
   integer: 'whole number',
@@ -27,6 +29,29 @@ export default function AnswerInput({ onSubmit, disabled, answerFormat, choices 
       onSubmit(trimmed)
       setValue('')
     }
+  }
+
+  if (answerFormat === 'fingering-pick' && choices && choices.length > 0) {
+    return (
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-3">
+        {choices.map((c) => {
+          const state = getFingering(c.value)
+          return (
+            <button
+              key={c.value}
+              type="button"
+              onClick={() => !disabled && onSubmit(c.value)}
+              disabled={disabled}
+              className="border border-ink-lighter bg-ink-light rounded-xl p-2 sm:p-3 flex flex-col items-center hover:border-brass/60 hover:bg-brass/10 disabled:opacity-40 transition-all active:scale-[0.98] min-h-[44px]"
+              aria-label={`Fingering for ${c.label}`}
+            >
+              {state ? <SaxFingering state={state} width={130} height={220} />
+                     : <div className="text-cream/60 text-sm py-12">no fingering</div>}
+            </button>
+          )
+        })}
+      </div>
+    )
   }
 
   if (answerFormat === 'multiple-choice' && choices && choices.length > 0) {
