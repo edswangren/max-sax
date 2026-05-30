@@ -6,6 +6,7 @@ import PracticeSession from './components/PracticeSession'
 import SessionHistory from './components/SessionHistory'
 import WeakSpots from './components/WeakSpots'
 import Settings from './components/Settings'
+import Metronome from './components/Metronome'
 
 const router = createHashRouter([
   {
@@ -18,6 +19,7 @@ const router = createHashRouter([
       { path: 'history', element: <SessionHistory /> },
       { path: 'weak-spots', element: <WeakSpots /> },
       { path: 'settings', element: <Settings /> },
+      { path: 'metronome', element: <Metronome /> },
     ],
   },
 ])

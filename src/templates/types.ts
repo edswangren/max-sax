@@ -5,6 +5,7 @@ export type AnswerFormat =
   | 'interval'
   | 'key-name'
   | 'multiple-choice'
+  | 'fingering-pick'
   | 'text'
 
 export type Difficulty = 'easy' | 'medium' | 'hard'

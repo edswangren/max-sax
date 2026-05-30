@@ -42,6 +42,9 @@ import { templates as fgSideKeys }   from './fingerings/fg-side-keys'
 import { templates as fgPalmKeys }   from './fingerings/fg-palm-keys'
 import { templates as fgAlternates } from './fingerings/fg-alternates'
 import { templates as fgAltissimo }  from './fingerings/fg-altissimo'
+import { templates as fgN2FLow }     from './fingerings/fg-note-to-fingering-low'
+import { templates as fgN2FOctave }  from './fingerings/fg-note-to-fingering-octave-key'
+import { templates as fgN2FPalm }    from './fingerings/fg-note-to-fingering-palm-keys'
 
 // Theory & Vocab
 import { templates as tvDynamics }     from './theory-vocab/tv-dynamics'
@@ -67,6 +70,7 @@ const allTemplates: ProblemTemplate[] = [
   ...skEnharmonic, ...skRelativeMinor, ...skChromatic, ...skOrderOfAccidentals,
   ...ryNoteValues, ...ryRests, ...ryTimesigMath, ...ryDotted, ...ryTiesSlurs, ...ryCounting, ...ryCompound, ...ryTriplets, ...rySightRead,
   ...fgLow, ...fgOctaveKey, ...fgSideKeys, ...fgPalmKeys, ...fgAlternates, ...fgAltissimo,
+  ...fgN2FLow, ...fgN2FOctave, ...fgN2FPalm,
   ...tvDynamics, ...tvTempo, ...tvArticulation, ...tvForm, ...tvItalian, ...tvIntervalsSight,
   ...etHighLow, ...et2nds3rds, ...etMajorMinor3rd, ...etPerfect, ...etAllIntervals, ...etScaleType, ...etTriads, ...etTuning,
 ]

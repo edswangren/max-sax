@@ -139,6 +139,79 @@ export function playSequence(notes: PlayNote[], optsOrGap: number | PlayOptions 
   }
 }
 
+// ---------- Metronome ----------
+
+interface ClickState {
+  intervalId: number
+  beatsPerMeasure: number
+  accentDownbeat: boolean
+  beatIdx: number
+  ctx: AudioContext
+}
+
+let click: ClickState | null = null
+
+export interface ClickOptions {
+  bpm: number
+  beatsPerMeasure?: number
+  accentDownbeat?: boolean
+}
+
+/** Start a continuous metronome click. Replaces any previous click. */
+export function startClick(opts: ClickOptions): void {
+  stopClick()
+  const beatsPerMeasure = opts.beatsPerMeasure ?? 4
+  const accentDownbeat = opts.accentDownbeat ?? true
+  const c = getContext()
+  if (c.state === 'suspended') c.resume().catch(() => { /* ignore */ })
+  primeWebAudio(c)
+  primeHTMLAudio()
+
+  const tickMs = 60_000 / Math.max(1, opts.bpm)
+  // First tick fires immediately (downbeat).
+  scheduleTick(c, 0, accentDownbeat)
+  const state: ClickState = {
+    intervalId: window.setInterval(() => {
+      if (!click) return
+      click.beatIdx = (click.beatIdx + 1) % click.beatsPerMeasure
+      scheduleTick(click.ctx, click.beatIdx, click.accentDownbeat)
+    }, tickMs),
+    beatsPerMeasure,
+    accentDownbeat,
+    beatIdx: 0,
+    ctx: c,
+  }
+  click = state
+}
+
+export function stopClick(): void {
+  if (!click) return
+  clearInterval(click.intervalId)
+  click = null
+}
+
+export function isClickRunning(): boolean {
+  return click !== null
+}
+
+function scheduleTick(c: AudioContext, beatIdx: number, accentDownbeat: boolean): void {
+  const isDown = accentDownbeat && beatIdx === 0
+  const now = c.currentTime
+  // Short noise-burst-ish click via two quick oscillators.
+  const osc = c.createOscillator()
+  osc.type = 'square'
+  osc.frequency.value = isDown ? 1800 : 1100
+  const gain = c.createGain()
+  const peak = isDown ? 0.32 : 0.18
+  const dur = 0.04
+  gain.gain.setValueAtTime(0, now)
+  gain.gain.linearRampToValueAtTime(peak, now + 0.002)
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur)
+  osc.connect(gain).connect(c.destination)
+  osc.start(now)
+  osc.stop(now + dur + 0.02)
+}
+
 function playOne(
   c: AudioContext,
   midi: number,
