@@ -32,11 +32,57 @@ const greetings = [
   "Daily reps. That's how chairs flip.",
   "Welcome back, legend.",
   "The horn's not gonna play itself.",
+  "Reed wet? Cool. Let's run it.",
+  "Chair-flip energy today.",
+  "1st chair is just 4th chair after enough reps.",
+  "Sectionals tomorrow. Be the kid who knew.",
+  "Embouchure check. Now we go.",
+  "Two scales a day keeps the bench warm.",
+  "Long tones first. Just kidding. Drills.",
+  "Show up. Reed up. Lock in.",
+  "8th graders won't see it coming.",
+  "Coltrane shedded daily. So do you.",
+  "Practice is the cheat code.",
+  "Eagles fly. Eagles also drill.",
+  "Read the page. Beat the page.",
+  "Brain on. Horn ready.",
+  "No half-reps today, Max.",
+  "Locked in or locked out. Pick one.",
+  "Grind quiet. Flex loud.",
+  "Honor Band kids aren't sleeping.",
+  "Tone, time, tuning — pick three.",
+  "Reed's not gonna soak itself.",
+  "10 minutes here = 10 chair spots there.",
+  "Section leader vibes loading…",
+  "Sharp keys? We eat sharp keys.",
+  "Flats are home turf. Let's go.",
+  "Rhythm first. Notes follow.",
+  "If the metronome's not on, why bother.",
+  "Mr. Director's gonna notice.",
 ]
+
+const RECENT_GREETING_KEY = 'maxsax-recent-greetings'
+const RECENT_GREETING_WINDOW = 6
+
+function pickFreshGreeting(): string {
+  let recent: string[] = []
+  try {
+    const raw = localStorage.getItem(RECENT_GREETING_KEY)
+    if (raw) recent = JSON.parse(raw)
+  } catch { /* ignore */ }
+  const fresh = greetings.filter((g) => !recent.includes(g))
+  const pool = fresh.length > 0 ? fresh : greetings
+  const chosen = pick(pool)
+  try {
+    const next = [chosen, ...recent].slice(0, RECENT_GREETING_WINDOW)
+    localStorage.setItem(RECENT_GREETING_KEY, JSON.stringify(next))
+  } catch { /* ignore */ }
+  return chosen
+}
 
 export default function Landing() {
   const progress = getAllProgress()
-  const greeting = pick(greetings)
+  const greeting = pickFreshGreeting()
   const totalPracticed = Object.values(progress).filter((p) => p?.attempted > 0).length
 
   return (
