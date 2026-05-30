@@ -27,6 +27,8 @@ export interface FingeringSpec {
 export interface AudioNote {
   midi: number
   durationMs: number
+  /** Per-note detune in cents — overrides AudioSpec.detuneCents for this note. */
+  detuneCents?: number
 }
 
 export interface AudioSpec {

@@ -19,6 +19,10 @@ import { templates as skTranspose }      from './scales-keys/sk-transpose'
 import { templates as skTransposeNotes } from './scales-keys/sk-transpose-notes'
 import { templates as skNaturalMinor }   from './scales-keys/sk-natural-minor'
 import { templates as skCircleFifths }   from './scales-keys/sk-circle-fifths'
+import { templates as skEnharmonic }     from './scales-keys/sk-enharmonic'
+import { templates as skRelativeMinor }  from './scales-keys/sk-relative-minor'
+import { templates as skChromatic }      from './scales-keys/sk-chromatic'
+import { templates as skOrderOfAccidentals } from './scales-keys/sk-order-of-accidentals'
 
 // Rhythm
 import { templates as ryNoteValues } from './rhythm/ry-note-values'
@@ -29,6 +33,7 @@ import { templates as ryTiesSlurs }  from './rhythm/ry-ties-slurs'
 import { templates as ryCounting }   from './rhythm/ry-counting'
 import { templates as ryCompound }   from './rhythm/ry-compound'
 import { templates as ryTriplets }   from './rhythm/ry-triplets'
+import { templates as rySightRead }  from './rhythm/ry-sight-read'
 
 // Fingerings
 import { templates as fgLow }        from './fingerings/fg-low'
@@ -53,14 +58,17 @@ import { templates as etMajorMinor3rd } from './ear-training/et-major-minor-3rd'
 import { templates as etPerfect }       from './ear-training/et-perfect'
 import { templates as etAllIntervals }  from './ear-training/et-all-intervals'
 import { templates as etScaleType }     from './ear-training/et-scale-type'
+import { templates as etTriads }        from './ear-training/et-triads'
+import { templates as etTuning }        from './ear-training/et-tuning'
 
 const allTemplates: ProblemTemplate[] = [
   ...nrLines, ...nrSpaces, ...nrMixed, ...nrLedgerBelow, ...nrAboveStaff, ...nrPalmKeys, ...nrAltissimo,
   ...skKeysigFlats, ...skKeysigSharps, ...skKeysigFull, ...skMajorConstruct, ...skIdentifyScale, ...skTranspose, ...skTransposeNotes, ...skNaturalMinor, ...skCircleFifths,
-  ...ryNoteValues, ...ryRests, ...ryTimesigMath, ...ryDotted, ...ryTiesSlurs, ...ryCounting, ...ryCompound, ...ryTriplets,
+  ...skEnharmonic, ...skRelativeMinor, ...skChromatic, ...skOrderOfAccidentals,
+  ...ryNoteValues, ...ryRests, ...ryTimesigMath, ...ryDotted, ...ryTiesSlurs, ...ryCounting, ...ryCompound, ...ryTriplets, ...rySightRead,
   ...fgLow, ...fgOctaveKey, ...fgSideKeys, ...fgPalmKeys, ...fgAlternates, ...fgAltissimo,
   ...tvDynamics, ...tvTempo, ...tvArticulation, ...tvForm, ...tvItalian, ...tvIntervalsSight,
-  ...etHighLow, ...et2nds3rds, ...etMajorMinor3rd, ...etPerfect, ...etAllIntervals, ...etScaleType,
+  ...etHighLow, ...et2nds3rds, ...etMajorMinor3rd, ...etPerfect, ...etAllIntervals, ...etScaleType, ...etTriads, ...etTuning,
 ]
 
 const byTopic = new Map<string, ProblemTemplate[]>()

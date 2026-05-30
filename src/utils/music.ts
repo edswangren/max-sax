@@ -271,6 +271,74 @@ export function normalizeKeyName(input: string): string {
   return `${letter}${accidental} ${quality}`
 }
 
+// ---------- Triads ----------
+
+export type TriadQuality = 'major' | 'minor' | 'diminished' | 'augmented'
+
+/** Semitone intervals from root for a triad in root position. */
+export function triadIntervals(quality: TriadQuality): [number, number, number] {
+  switch (quality) {
+    case 'major':       return [0, 4, 7]
+    case 'minor':       return [0, 3, 7]
+    case 'diminished':  return [0, 3, 6]
+    case 'augmented':   return [0, 4, 8]
+  }
+}
+
+// ---------- Relative / parallel keys ----------
+
+// Hardcoded relative-key pairs match conventional spelling (e.g. G minor ↔ Bb
+// major, not A# major). Computing by semitone shift gets the pitch right but
+// not always the spelling musicians expect.
+const RELATIVE_PAIRS: Array<[string, string]> = [
+  ['C major', 'A minor'],
+  ['G major', 'E minor'],
+  ['D major', 'B minor'],
+  ['A major', 'F# minor'],
+  ['E major', 'C# minor'],
+  ['B major', 'G# minor'],
+  ['F# major', 'D# minor'],
+  ['C# major', 'A# minor'],
+  ['F major', 'D minor'],
+  ['Bb major', 'G minor'],
+  ['Eb major', 'C minor'],
+  ['Ab major', 'F minor'],
+  ['Db major', 'Bb minor'],
+  ['Gb major', 'Eb minor'],
+  ['Cb major', 'Ab minor'],
+]
+
+const MAJOR_TO_MINOR = new Map(RELATIVE_PAIRS)
+const MINOR_TO_MAJOR = new Map(RELATIVE_PAIRS.map(([maj, min]) => [min, maj] as const))
+
+/** Relative minor of a major key. "Bb major" → "G minor". */
+export function relativeMinor(majorKey: string): string {
+  const n = normalizeKeyName(majorKey)
+  return MAJOR_TO_MINOR.get(n) ?? n
+}
+
+/** Relative major of a natural-minor key. "G minor" → "Bb major". */
+export function relativeMajor(minorKey: string): string {
+  const n = normalizeKeyName(minorKey)
+  return MINOR_TO_MAJOR.get(n) ?? n
+}
+
+// ---------- Chromatic ----------
+
+/** Next chromatic note from a pitch class. Direction-aware, with letter-conventional spelling. */
+export function chromaticNext(pc: string, direction: 'up' | 'down'): string {
+  const semi = pitchClassToSemitone(pc)
+  if (semi === undefined) return pc
+  const next = (semi + (direction === 'up' ? 1 : 11)) % 12
+  // Ascending → prefer sharps; descending → prefer flats. Convention.
+  return direction === 'up' ? SEMITONE_TO_SHARP[next] : SEMITONE_TO_FLAT[next]
+}
+
+// ---------- Order of accidentals (sharps + flats) ----------
+
+export const ORDER_OF_SHARPS: string[] = ['F#','C#','G#','D#','A#','E#','B#']
+export const ORDER_OF_FLATS:  string[] = ['Bb','Eb','Ab','Db','Gb','Cb','Fb']
+
 // ---------- Sax range ----------
 
 /** Standard written sax range — low Bb (Bb3) to palm F# (F#6). Altissimo extends higher. */

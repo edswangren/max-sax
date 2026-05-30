@@ -14,6 +14,12 @@ import {
   normalizeKeyName,
   concertToWrittenPc,
   concertToWrittenKey,
+  triadIntervals,
+  relativeMinor,
+  relativeMajor,
+  chromaticNext,
+  ORDER_OF_SHARPS,
+  ORDER_OF_FLATS,
 } from '../utils/music'
 
 describe('normalizeNoteName', () => {
@@ -171,6 +177,54 @@ describe('normalizeKeyName', () => {
     expect(normalizeKeyName('g minor')).toBe('G minor')
     expect(normalizeKeyName('gm')).toBe('G minor')
     expect(normalizeKeyName('F# major')).toBe('F# major')
+  })
+})
+
+describe('triadIntervals', () => {
+  it('returns the right semitone shapes', () => {
+    expect(triadIntervals('major')).toEqual([0, 4, 7])
+    expect(triadIntervals('minor')).toEqual([0, 3, 7])
+    expect(triadIntervals('diminished')).toEqual([0, 3, 6])
+    expect(triadIntervals('augmented')).toEqual([0, 4, 8])
+  })
+})
+
+describe('relativeMinor / relativeMajor', () => {
+  it('major → relative minor is a minor 3rd below', () => {
+    expect(relativeMinor('C major')).toBe('A minor')
+    expect(relativeMinor('G major')).toBe('E minor')
+    expect(relativeMinor('Bb major')).toBe('G minor')
+    expect(relativeMinor('Eb major')).toBe('C minor')
+    expect(relativeMinor('D major')).toBe('B minor')
+  })
+  it('minor → relative major is a minor 3rd above', () => {
+    expect(relativeMajor('A minor')).toBe('C major')
+    expect(relativeMajor('E minor')).toBe('G major')
+    expect(relativeMajor('G minor')).toBe('Bb major')
+    expect(relativeMajor('C minor')).toBe('Eb major')
+    expect(relativeMajor('B minor')).toBe('D major')
+  })
+})
+
+describe('chromaticNext', () => {
+  it('ascends with sharps', () => {
+    expect(chromaticNext('C', 'up')).toBe('C#')
+    expect(chromaticNext('G', 'up')).toBe('G#')
+    expect(chromaticNext('B', 'up')).toBe('C')
+  })
+  it('descends with flats', () => {
+    expect(chromaticNext('C', 'down')).toBe('B')
+    expect(chromaticNext('A', 'down')).toBe('Ab')
+    expect(chromaticNext('Eb', 'down')).toBe('D')
+  })
+})
+
+describe('order of sharps / flats', () => {
+  it('order of sharps is F-C-G-D-A-E-B (with sharps)', () => {
+    expect(ORDER_OF_SHARPS).toEqual(['F#','C#','G#','D#','A#','E#','B#'])
+  })
+  it('order of flats is B-E-A-D-G-C-F (with flats)', () => {
+    expect(ORDER_OF_FLATS).toEqual(['Bb','Eb','Ab','Db','Gb','Cb','Fb'])
   })
 })
 
