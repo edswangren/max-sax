@@ -7,7 +7,7 @@ export function getInstrument(): Instrument {
     const v = localStorage.getItem(KEY)
     if (v === 'tenor' || v === 'alto') return v
   } catch { /* ignore */ }
-  return 'alto'
+  return 'tenor'
 }
 
 export function setInstrument(i: Instrument): void {
