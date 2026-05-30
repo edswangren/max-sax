@@ -29,7 +29,7 @@ function makeProblem(d: Difficulty): GeneratedProblem {
     correctAnswer: t.name,
     answerFormat: 'multiple-choice',
     choices: shuffle(TYPES).map((x) => ({ label: x.label, value: x.name })),
-    audioSpec: { notes, gapMs: 0 },
+    audioSpec: { notes, gapMs: 0, timbre: 'clean' },
   }
 }
 

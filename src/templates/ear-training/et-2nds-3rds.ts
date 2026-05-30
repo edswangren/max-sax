@@ -23,7 +23,7 @@ function makeProblem(d: Difficulty): GeneratedProblem {
       { label: '2nd', value: '2nd' },
       { label: '3rd', value: '3rd' },
     ]),
-    audioSpec: { notes, gapMs: 60 },
+    audioSpec: { notes, gapMs: 60, timbre: 'clean' },
     hint: d === 'easy' ? '2nds sound right next to each other; 3rds skip a step.' : undefined,
   }
 }

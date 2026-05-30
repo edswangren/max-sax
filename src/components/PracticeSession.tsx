@@ -210,6 +210,7 @@ export default function PracticeSession() {
           userAnswer={feedback.userAnswer}
           onNext={handleNext}
           checkWork={current.checkWork}
+          audioSpec={current.feedbackAudioSpec}
         />
       )}
     </div>

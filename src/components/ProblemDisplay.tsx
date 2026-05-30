@@ -41,7 +41,11 @@ export default function ProblemDisplay({ problem, problemNumber, totalProblems }
       {audioSpec && (
         <div className="mb-2">
           <button
-            onClick={() => playSequence(audioSpec.notes, audioSpec.gapMs)}
+            onClick={() => playSequence(audioSpec.notes, {
+              gapMs: audioSpec.gapMs,
+              timbre: audioSpec.timbre,
+              detuneCents: audioSpec.detuneCents,
+            })}
             className="bg-brass text-ink font-bold px-4 py-2 rounded-xl hover:bg-brass-dim transition-colors inline-flex items-center gap-2"
           >
             <span aria-hidden>▶</span> Play

@@ -32,6 +32,8 @@ export interface AudioNote {
 export interface AudioSpec {
   notes: AudioNote[]
   gapMs?: number
+  timbre?: 'reed' | 'clean'
+  detuneCents?: number
 }
 
 export interface MultipleChoiceOption {
@@ -49,6 +51,8 @@ export interface GeneratedProblem {
   staffSpec?: StaffSpec
   fingeringSpec?: FingeringSpec
   audioSpec?: AudioSpec
+  /** Audio rendered only on the feedback banner — useful when audio would give the answer away. */
+  feedbackAudioSpec?: AudioSpec
   choices?: MultipleChoiceOption[]
 }
 

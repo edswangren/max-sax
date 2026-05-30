@@ -9,15 +9,19 @@ function makeProblem(d: Difficulty): GeneratedProblem {
     // play simultaneously (block dyad) for harder mode — emulate via 0 gap & overlapping durations
     ? [{ midi: base, durationMs: 1200 }, { midi: base + sep, durationMs: 1200 }]
     : [{ midi: base, durationMs: 700 }, { midi: base + sep, durationMs: 700 }]
+  // Chill keeps the friendly framing. Mid/Demon swap to half-step labels so
+  // the student starts internalizing the actual interval measurement.
+  const majorLabel = d === 'easy' ? 'Major (happy/bright)' : 'Major (4 half-steps)'
+  const minorLabel = d === 'easy' ? 'Minor (sad/dark)'     : 'Minor (3 half-steps)'
   return {
     questionText: 'Major 3rd or Minor 3rd?',
     correctAnswer: isMajor ? 'Major' : 'Minor',
     answerFormat: 'multiple-choice',
     choices: shuffle([
-      { label: 'Major (happy/bright)', value: 'Major' },
-      { label: 'Minor (sad/dark)',     value: 'Minor' },
+      { label: majorLabel, value: 'Major' },
+      { label: minorLabel, value: 'Minor' },
     ]),
-    audioSpec: { notes, gapMs: d === 'hard' ? -1200 : 50 }, // negative gap → overlap
+    audioSpec: { notes, gapMs: d === 'hard' ? -1200 : 50, timbre: 'clean' }, // negative gap → overlap
     hint: d === 'easy' ? 'Major = brighter / "happy". Minor = darker / "sad".' : undefined,
   }
 }

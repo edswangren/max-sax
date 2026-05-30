@@ -22,7 +22,7 @@ function makeProblem(d: Difficulty): GeneratedProblem {
     correctAnswer: p.name,
     answerFormat: 'multiple-choice',
     choices: shuffle(PAIRS).map((x) => ({ label: x.label, value: x.name })),
-    audioSpec: { notes, gapMs: 50 },
+    audioSpec: { notes, gapMs: 50, timbre: 'clean' },
     hint: d === 'easy' ? 'P5 sounds "open / hollow". Octave sounds like "the same note".' : undefined,
   }
 }

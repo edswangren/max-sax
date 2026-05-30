@@ -16,6 +16,7 @@ import { templates as skKeysigFull }     from './scales-keys/sk-keysig-full'
 import { templates as skMajorConstruct } from './scales-keys/sk-major-construct'
 import { templates as skIdentifyScale }  from './scales-keys/sk-identify-scale'
 import { templates as skTranspose }      from './scales-keys/sk-transpose'
+import { templates as skTransposeNotes } from './scales-keys/sk-transpose-notes'
 import { templates as skNaturalMinor }   from './scales-keys/sk-natural-minor'
 import { templates as skCircleFifths }   from './scales-keys/sk-circle-fifths'
 
@@ -55,7 +56,7 @@ import { templates as etScaleType }     from './ear-training/et-scale-type'
 
 const allTemplates: ProblemTemplate[] = [
   ...nrLines, ...nrSpaces, ...nrMixed, ...nrLedgerBelow, ...nrAboveStaff, ...nrPalmKeys, ...nrAltissimo,
-  ...skKeysigFlats, ...skKeysigSharps, ...skKeysigFull, ...skMajorConstruct, ...skIdentifyScale, ...skTranspose, ...skNaturalMinor, ...skCircleFifths,
+  ...skKeysigFlats, ...skKeysigSharps, ...skKeysigFull, ...skMajorConstruct, ...skIdentifyScale, ...skTranspose, ...skTransposeNotes, ...skNaturalMinor, ...skCircleFifths,
   ...ryNoteValues, ...ryRests, ...ryTimesigMath, ...ryDotted, ...ryTiesSlurs, ...ryCounting, ...ryCompound, ...ryTriplets,
   ...fgLow, ...fgOctaveKey, ...fgSideKeys, ...fgPalmKeys, ...fgAlternates, ...fgAltissimo,
   ...tvDynamics, ...tvTempo, ...tvArticulation, ...tvForm, ...tvItalian, ...tvIntervalsSight,
