@@ -27,7 +27,7 @@ function generateProblems(topicId: string, difficulty: Difficulty): GeneratedPro
 export default function PracticeSession() {
   const { topicId = '' } = useParams()
   const [searchParams] = useSearchParams()
-  const initialDifficulty = (searchParams.get('d') as Difficulty) || 'easy'
+  const initialDifficulty = (searchParams.get('d') as Difficulty) || 'medium'
 
   const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty)
   const [sessionKey, setSessionKey] = useState(0)
