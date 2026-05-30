@@ -128,6 +128,14 @@ describe('buildScale', () => {
       expect(new Set(letters).size).toBe(7)
     }
   })
+  it('all natural-minor scales have 7 unique letters', () => {
+    const roots = ['A','D','E','G','C','B','F','Bb','Eb','F#','C#']
+    for (const r of roots) {
+      const scale = buildScale(r, 'natural-minor')
+      const letters = scale.map((n) => n[0])
+      expect(new Set(letters).size).toBe(7)
+    }
+  })
 })
 
 describe('intervalFromMidis', () => {

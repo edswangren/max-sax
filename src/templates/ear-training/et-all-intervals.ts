@@ -22,9 +22,11 @@ function poolFor(d: Difficulty): Pair[] {
 function makeProblem(d: Difficulty): GeneratedProblem {
   const pool = poolFor(d)
   const p = pick(pool)
+  const rootChoices = [50, 52, 55, 57, 60, 62, 65, 67].filter((r) => r + p.semis <= 84)
+  const root = pick(rootChoices.length ? rootChoices : [60])
   const notes = [
-    { midi: 60, durationMs: 600 },
-    { midi: 60 + p.semis, durationMs: 600 },
+    { midi: root, durationMs: 600 },
+    { midi: root + p.semis, durationMs: 600 },
   ]
   const choicesPool = shuffle(pool).slice(0, 4)
   if (!choicesPool.find((x) => x.name === p.name)) choicesPool[0] = p

@@ -22,13 +22,8 @@ function makeProblem(d: Difficulty): GeneratedProblem {
   const distractors = shuffle(allKeys.filter((k) => k !== key)).slice(0, 3)
   const choices = shuffle([key, ...distractors]).map((v) => ({ label: v, value: v }))
 
-  const flats = count < 0 ? Math.abs(count) : 0
-  const sharps = count > 0 ? count : 0
-  const desc = count === 0 ? 'no sharps or flats'
-    : flats > 0 ? `${flats} flat${flats === 1 ? '' : 's'}`
-    : `${sharps} sharp${sharps === 1 ? '' : 's'}`
   return {
-    questionText: `This key signature has ${desc}. What major key?`,
+    questionText: `What major key uses this signature?`,
     correctAnswer: key,
     answerFormat: 'multiple-choice',
     choices,

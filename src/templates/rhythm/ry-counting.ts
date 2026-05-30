@@ -17,7 +17,7 @@ const MID: Beat[] = [
 ]
 const HARD: Beat[] = [
   ...MID,
-  { description: 'an eighth-note triplet',             count: '1 trip let', alternates: ['1 & a', 'trip-let-1'] },
+  { description: 'an eighth-note triplet',             count: '1 trip let', alternates: ['trip-let-1', '1 la li'] },
   { description: 'a dotted eighth + a sixteenth',      count: '1 . . a',   alternates: ['1 a', 'dotted 8 16'] },
 ]
 
