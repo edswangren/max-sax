@@ -9,8 +9,11 @@ function gap(d: Difficulty): number {
 }
 
 function makeProblem(d: Difficulty): GeneratedProblem {
-  const base = 60 // C4
   const sep = gap(d)
+  // Randomize root across a comfortable singing range; cap so the upper note
+  // stays under MIDI 84 (C6) regardless of the chosen gap.
+  const rootChoices = [50, 52, 55, 57, 60, 62, 65, 67].filter((r) => r + sep <= 84)
+  const base = pick(rootChoices.length ? rootChoices : [60])
   const firstHigher = Math.random() < 0.5
   const a = base
   const b = base + sep

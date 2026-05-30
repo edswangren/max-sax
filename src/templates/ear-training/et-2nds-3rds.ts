@@ -10,7 +10,7 @@ function makeProblem(d: Difficulty): GeneratedProblem {
   const sep = pick(pool)
   // Restrict pool by difficulty (easy = no minor/major mix complications)
   const adjSep = d === 'easy' ? (isThird ? 4 : 2) : sep
-  const base = 60
+  const base = pick([50, 52, 55, 57, 60, 62, 65, 67])
   const notes = [
     { midi: base, durationMs: 600 },
     { midi: base + adjSep, durationMs: 600 },

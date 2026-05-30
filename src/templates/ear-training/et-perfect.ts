@@ -11,9 +11,11 @@ const PAIRS: Pair[] = [
 function makeProblem(d: Difficulty): GeneratedProblem {
   const pool = d === 'easy' ? PAIRS.filter((p) => p.name !== 'P4') : PAIRS
   const p = pick(pool)
+  const rootChoices = [50, 52, 55, 57, 60, 62, 65, 67].filter((r) => r + p.semis <= 84)
+  const root = pick(rootChoices.length ? rootChoices : [60])
   const notes = [
-    { midi: 60, durationMs: 700 },
-    { midi: 60 + p.semis, durationMs: 700 },
+    { midi: root, durationMs: 700 },
+    { midi: root + p.semis, durationMs: 700 },
   ]
   return {
     questionText: 'Which perfect interval is this?',

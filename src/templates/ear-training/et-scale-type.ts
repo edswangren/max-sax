@@ -18,7 +18,11 @@ function poolFor(d: Difficulty): ScaleType[] {
 function makeProblem(d: Difficulty): GeneratedProblem {
   const pool = poolFor(d)
   const t = pick(pool)
-  const root = 60 // C4
+  // Scale-type fingerprint shouldn't depend on the root; vary it so the student
+  // can't memorize C-only patterns.
+  const topInterval = t.intervals[t.intervals.length - 1]
+  const rootChoices = [50, 52, 55, 57, 60, 62, 65, 67].filter((r) => r + topInterval <= 84)
+  const root = pick(rootChoices.length ? rootChoices : [60])
   const notes = t.intervals.map((semi) => ({ midi: root + semi, durationMs: 320 }))
   return {
     questionText: 'What kind of scale is this?',

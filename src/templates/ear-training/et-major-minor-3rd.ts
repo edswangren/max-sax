@@ -1,10 +1,10 @@
 import type { ProblemTemplate, GeneratedProblem, Difficulty } from '../types'
-import { shuffle } from '../../utils/random'
+import { pick, shuffle } from '../../utils/random'
 
 function makeProblem(d: Difficulty): GeneratedProblem {
   const isMajor = Math.random() < 0.5
   const sep = isMajor ? 4 : 3
-  const base = 60
+  const base = pick([50, 52, 55, 57, 60, 62, 65, 67])
   const notes = d === 'hard'
     // play simultaneously (block dyad) for harder mode — emulate via 0 gap & overlapping durations
     ? [{ midi: base, durationMs: 1200 }, { midi: base + sep, durationMs: 1200 }]
