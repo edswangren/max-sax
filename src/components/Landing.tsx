@@ -57,7 +57,7 @@ export default function Landing() {
               <span className="text-brass">Golden</span> Eagles Band
             </h2>
             <p className="text-brass-glow text-xs sm:text-sm font-bold mt-0.5">
-              Honor Band 1 · 6th grade
+              Honor Band 1 · 7th grade
             </p>
           </div>
         </div>
