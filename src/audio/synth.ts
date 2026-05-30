@@ -96,6 +96,8 @@ export function installInteractionUnlock(): void {
 interface PlayNote {
   midi: number
   durationMs: number
+  /** Per-note detune in cents — overrides PlayOptions.detuneCents for this note. */
+  detuneCents?: number
 }
 
 export type Timbre = 'reed' | 'clean'
@@ -131,7 +133,8 @@ export function playSequence(notes: PlayNote[], optsOrGap: number | PlayOptions 
 
   let cursor = c.currentTime + 0.08
   for (const n of notes) {
-    playOne(c, n.midi, n.durationMs, cursor, timbre, detuneCents)
+    const cents = n.detuneCents ?? detuneCents
+    playOne(c, n.midi, n.durationMs, cursor, timbre, cents)
     cursor += (n.durationMs + gapMs) / 1000
   }
 }

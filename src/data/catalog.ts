@@ -48,6 +48,10 @@ export const categories: Category[] = [
       { id: 'sk-transpose-notes',  title: 'Transpose tonic / 3rd / 5th', blurb: 'Band plays concert F. Your 3rd is...?' },
       { id: 'sk-natural-minor',    title: 'Natural minor scales',     blurb: 'W-H-W-W-H-W-W' },
       { id: 'sk-circle-fifths',    title: 'Circle of fifths',         blurb: 'Next key up or down a fifth' },
+      { id: 'sk-enharmonic',         title: 'Enharmonic equivalents',     blurb: 'Same key, different name — A♯ = B♭' },
+      { id: 'sk-relative-minor',     title: 'Relative minor / major',     blurb: 'Two keys, same signature' },
+      { id: 'sk-chromatic',          title: 'Chromatic next note',        blurb: 'Half-step up or down — name it' },
+      { id: 'sk-order-of-accidentals', title: 'Order of sharps & flats',  blurb: 'F-C-G-D-A-E-B and the reverse for flats' },
     ],
   },
   {
@@ -63,6 +67,7 @@ export const categories: Category[] = [
       { id: 'ry-counting',     title: 'Counting subdivisions', blurb: '1 e & a 2 e & a — pick the right counting' },
       { id: 'ry-compound',     title: 'Compound meter (6/8)', blurb: 'Two big beats, three little beats each' },
       { id: 'ry-triplets',     title: 'Triplets',           blurb: '3 in the space of 2' },
+      { id: 'ry-sight-read',   title: 'Sight-read rhythm',  blurb: 'Match the bar to the right counting' },
     ],
   },
   {
@@ -102,6 +107,8 @@ export const categories: Category[] = [
       { id: 'et-perfect',          title: 'Perfect intervals',    blurb: '4ths, 5ths, octaves' },
       { id: 'et-all-intervals',    title: 'All intervals',        blurb: 'Mixed bag, harder' },
       { id: 'et-scale-type',       title: 'Scale type by ear',    blurb: 'Major / minor / chromatic / whole-tone' },
+      { id: 'et-triads',           title: 'Triad quality by ear', blurb: 'Major / minor / dim / aug' },
+      { id: 'et-tuning',           title: 'Tuning — sharp/flat',  blurb: 'Reference vs test tone — judge the offset' },
     ],
   },
 ]
