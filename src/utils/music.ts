@@ -334,6 +334,14 @@ export function chromaticNext(pc: string, direction: 'up' | 'down'): string {
   return direction === 'up' ? SEMITONE_TO_SHARP[next] : SEMITONE_TO_FLAT[next]
 }
 
+/** Apply a major key signature to a natural letter — "F" in "G major" → "F#". */
+export function applyKeySignatureToLetter(letter: string, majorKey: string): string {
+  const L = letter[0].toUpperCase()
+  const accs = keySignatureAccidentals(majorKey)
+  const match = accs.find((a) => a[0] === L)
+  return match ?? L
+}
+
 // ---------- Order of accidentals (sharps + flats) ----------
 
 export const ORDER_OF_SHARPS: string[] = ['F#','C#','G#','D#','A#','E#','B#']

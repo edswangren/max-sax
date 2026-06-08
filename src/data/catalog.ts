@@ -32,6 +32,8 @@ export const categories: Category[] = [
       { id: 'nr-above-staff',   title: 'Above the staff',        blurb: 'G–C above top F' },
       { id: 'nr-palm-keys',     title: 'Palm-key range',         blurb: 'D, E, F, F♯ — top of the horn' },
       { id: 'nr-altissimo',     title: 'Altissimo basics',       blurb: 'G–C above palm F♯ — the screamer notes' },
+      { id: 'nr-in-key',              title: 'Notes in a key signature',  blurb: 'F-line in G major is F♯ — apply the key sig' },
+      { id: 'nr-courtesy-accidental', title: 'Courtesy & cancellation',   blurb: 'Naturals cancel key sigs — read the accidental too' },
     ],
   },
   {

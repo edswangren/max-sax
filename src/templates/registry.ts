@@ -8,6 +8,8 @@ import { templates as nrLedgerBelow } from './note-reading/nr-ledger-below'
 import { templates as nrAboveStaff }  from './note-reading/nr-above-staff'
 import { templates as nrPalmKeys }    from './note-reading/nr-palm-keys'
 import { templates as nrAltissimo }   from './note-reading/nr-altissimo'
+import { templates as nrInKey }       from './note-reading/nr-in-key'
+import { templates as nrCourtesy }    from './note-reading/nr-courtesy-accidental'
 
 // Scales & Keys
 import { templates as skKeysigFlats }    from './scales-keys/sk-keysig-flats'
@@ -66,6 +68,7 @@ import { templates as etTuning }        from './ear-training/et-tuning'
 
 const allTemplates: ProblemTemplate[] = [
   ...nrLines, ...nrSpaces, ...nrMixed, ...nrLedgerBelow, ...nrAboveStaff, ...nrPalmKeys, ...nrAltissimo,
+  ...nrInKey, ...nrCourtesy,
   ...skKeysigFlats, ...skKeysigSharps, ...skKeysigFull, ...skMajorConstruct, ...skIdentifyScale, ...skTranspose, ...skTransposeNotes, ...skNaturalMinor, ...skCircleFifths,
   ...skEnharmonic, ...skRelativeMinor, ...skChromatic, ...skOrderOfAccidentals,
   ...ryNoteValues, ...ryRests, ...ryTimesigMath, ...ryDotted, ...ryTiesSlurs, ...ryCounting, ...ryCompound, ...ryTriplets, ...rySightRead,

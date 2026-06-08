@@ -12,10 +12,10 @@ import type { StaffSpec } from '../templates/types'
 interface Props extends StaffSpec {}
 
 function parseNoteSpec(spec: string): { key: string; accidental: string | null; duration: string } {
-  // Format: "Bb4/q" or "F#5" (defaults to whole note)
+  // Format: "Bb4/q", "F#5", "Fn4" (natural sign), defaults to whole note.
   const [pitch, durRaw] = spec.split('/')
   const duration = durRaw || 'w'
-  const m = pitch.match(/^([A-Ga-g])([#b]?)(-?\d+)$/)
+  const m = pitch.match(/^([A-Ga-g])([#bn]?)(-?\d+)$/)
   if (!m) {
     return { key: 'c/4', accidental: null, duration }
   }
