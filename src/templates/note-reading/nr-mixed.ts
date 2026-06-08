@@ -1,12 +1,32 @@
-import type { ProblemTemplate, GeneratedProblem, Difficulty } from '../types'
-import { pick } from '../../utils/random'
+import type { ProblemTemplate, GeneratedProblem, Difficulty, MultipleChoiceOption } from '../types'
+import { pick, shuffle } from '../../utils/random'
 
-const STAFF = ['E4','F4','G4','A4','B4','C5','D5','E5','F5']
+// Full treble staff (E4 to F5) with accidentals at increasing density.
+const CHILL = [
+  'E4','Eb4',
+  'F4','F#4',
+  'G4','G#4','Gb4',
+  'A4','Ab4',
+  'B4','Bb4',
+  'C5','C#5',
+  'D5','D#5','Db5',
+  'E5','Eb5',
+  'F5','F#5',
+] // 20 entries
+const MID   = [...CHILL, 'A#4', 'Cb5']                  // 22
+const DEMON = [...MID, 'Fb5']                           // 23
 
 function pcOf(n: string): string { return n.replace(/\d+$/, '') }
 
+function mcChoices(correct: string, pool: string[]): MultipleChoiceOption[] {
+  const pcs = [...new Set(pool.map(pcOf))]
+  const distractors = shuffle(pcs.filter((p) => p !== correct)).slice(0, 3)
+  return shuffle([correct, ...distractors]).map((v) => ({ label: v, value: v }))
+}
+
 function makeProblem(d: Difficulty): GeneratedProblem {
-  const note = pick(STAFF)
+  const pool = d === 'easy' ? CHILL : d === 'medium' ? MID : DEMON
+  const note = pick(pool)
   const pc = pcOf(note)
   const base: GeneratedProblem = {
     questionText: 'Name this note.',
@@ -18,11 +38,11 @@ function makeProblem(d: Difficulty): GeneratedProblem {
     return {
       ...base,
       answerFormat: 'multiple-choice',
-      choices: ['E','F','G','A','B','C','D'].map((p) => ({ label: p, value: p })),
-      hint: 'Lines: EGBDF. Spaces: FACE.',
+      choices: mcChoices(pc, pool),
+      hint: 'Read the accidental in front of the note.',
     }
   }
-  if (d === 'medium') return { ...base, hint: 'Type just the letter (e.g. F).' }
+  if (d === 'medium') return { ...base, hint: 'Include the accidental — F vs F#.' }
   return base
 }
 

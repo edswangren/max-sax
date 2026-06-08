@@ -10,7 +10,7 @@ import { recordSession } from '../store/progress'
 import { saveSession, type Mistake } from '../store/sessions'
 import { getTopic } from '../data/catalog'
 import type { Difficulty, GeneratedProblem } from '../templates/types'
-import { pick } from '../utils/random'
+import { pick, generateUnique } from '../utils/random'
 import Confetti from './Confetti'
 
 const TOTAL_PROBLEMS = 10
@@ -18,10 +18,16 @@ const TOTAL_PROBLEMS = 10
 function generateProblems(topicId: string, difficulty: Difficulty): GeneratedProblem[] {
   const templates = getTemplatesForTopic(topicId, difficulty)
   if (templates.length === 0) return []
-  return Array.from({ length: TOTAL_PROBLEMS }, () => {
-    const template = templates[Math.floor(Math.random() * templates.length)]
-    return template.generate()
-  })
+  // Dedupe by correctAnswer within the session so a 10-question run cycles
+  // through the answer pool before repeating.
+  return generateUnique(
+    () => {
+      const template = templates[Math.floor(Math.random() * templates.length)]
+      return template.generate()
+    },
+    TOTAL_PROBLEMS,
+    (p) => p.correctAnswer,
+  )
 }
 
 export default function PracticeSession() {

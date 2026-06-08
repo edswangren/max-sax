@@ -1,14 +1,22 @@
-import type { ProblemTemplate, GeneratedProblem, Difficulty } from '../types'
-import { pick } from '../../utils/random'
+import type { ProblemTemplate, GeneratedProblem, Difficulty, MultipleChoiceOption } from '../types'
+import { pick, shuffle } from '../../utils/random'
 
-// Sax low range: written notes below the treble staff bottom (E4)
-// D4 (just below), C4 (1st ledger), B3 (below middle C), Bb3 (with flat)
-const NOTES = ['D4', 'C4', 'B3', 'Bb3']
+// Below the staff: D4 down to G3 (sax low range up to written E4 = staff bottom).
+const CHILL = ['D4','D#4','Db4','C4','C#4','B3','Bb3']                   // 7
+const MID   = [...CHILL, 'A3','Ab3','A#3']                                // 10
+const DEMON = [...MID, 'G3','G#3','Gb3']                                  // 13
 
 function pcOf(n: string): string { return n.replace(/\d+$/, '') }
 
+function mcChoices(correct: string, pool: string[]): MultipleChoiceOption[] {
+  const pcs = [...new Set(pool.map(pcOf))]
+  const distractors = shuffle(pcs.filter((p) => p !== correct)).slice(0, 3)
+  return shuffle([correct, ...distractors]).map((v) => ({ label: v, value: v }))
+}
+
 function makeProblem(d: Difficulty): GeneratedProblem {
-  const note = pick(NOTES)
+  const pool = d === 'easy' ? CHILL : d === 'medium' ? MID : DEMON
+  const note = pick(pool)
   const pc = pcOf(note)
   const base: GeneratedProblem = {
     questionText: 'Name this note.',
@@ -20,11 +28,11 @@ function makeProblem(d: Difficulty): GeneratedProblem {
     return {
       ...base,
       answerFormat: 'multiple-choice',
-      choices: NOTES.map((n) => ({ label: pcOf(n), value: pcOf(n) })),
-      hint: 'Just below the staff: D, then middle C, then B, then low B♭.',
+      choices: mcChoices(pc, pool),
+      hint: 'First ledger below the staff = middle C (C4).',
     }
   }
-  if (d === 'medium') return { ...base, hint: 'Include the accidental if there is one (B vs B♭).' }
+  if (d === 'medium') return { ...base, hint: 'Include the accidental (B vs B♭).' }
   return base
 }
 
