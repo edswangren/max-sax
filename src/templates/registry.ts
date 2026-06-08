@@ -10,6 +10,9 @@ import { templates as nrPalmKeys }    from './note-reading/nr-palm-keys'
 import { templates as nrAltissimo }   from './note-reading/nr-altissimo'
 import { templates as nrInKey }       from './note-reading/nr-in-key'
 import { templates as nrCourtesy }    from './note-reading/nr-courtesy-accidental'
+import { templates as nrPhrase }      from './note-reading/nr-phrase'
+import { templates as nrPhraseSeq }   from './note-reading/nr-phrase-sequence'
+import { templates as nrPatternId }   from './note-reading/nr-pattern-id'
 
 // Scales & Keys
 import { templates as skKeysigFlats }    from './scales-keys/sk-keysig-flats'
@@ -69,6 +72,7 @@ import { templates as etTuning }        from './ear-training/et-tuning'
 const allTemplates: ProblemTemplate[] = [
   ...nrLines, ...nrSpaces, ...nrMixed, ...nrLedgerBelow, ...nrAboveStaff, ...nrPalmKeys, ...nrAltissimo,
   ...nrInKey, ...nrCourtesy,
+  ...nrPhrase, ...nrPhraseSeq, ...nrPatternId,
   ...skKeysigFlats, ...skKeysigSharps, ...skKeysigFull, ...skMajorConstruct, ...skIdentifyScale, ...skTranspose, ...skTransposeNotes, ...skNaturalMinor, ...skCircleFifths,
   ...skEnharmonic, ...skRelativeMinor, ...skChromatic, ...skOrderOfAccidentals,
   ...ryNoteValues, ...ryRests, ...ryTimesigMath, ...ryDotted, ...ryTiesSlurs, ...ryCounting, ...ryCompound, ...ryTriplets, ...rySightRead,

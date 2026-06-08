@@ -342,6 +342,84 @@ export function applyKeySignatureToLetter(letter: string, majorKey: string): str
   return match ?? L
 }
 
+// ---------- Melodic phrase generation ----------
+
+export type PhraseShape = 'step-up' | 'step-down' | 'arpeggio' | 'neighbor' | 'leap-step'
+
+export interface PhraseNote {
+  name: string      // pitch class, e.g. 'Bb'
+  spec: string      // staff spec, e.g. 'B4' (no accidental if key sig already covers it)
+  midi: number      // for highest/lowest comparisons
+}
+
+export interface Phrase {
+  notes: PhraseNote[]
+  shape: PhraseShape
+  key: string
+}
+
+const LETTER_CYCLE = ['C','D','E','F','G','A','B']
+
+// Degree offsets per shape — degree 0 is the start scale-degree we pick.
+const SHAPE_OFFSETS: Record<PhraseShape, number[]> = {
+  'step-up':   [0, 1, 2, 3],
+  'step-down': [0, -1, -2, -3],
+  'arpeggio':  [0, 2, 4, 7],   // 1-3-5-8
+  'neighbor':  [0, 1, 0, -1],
+  'leap-step': [0, 4, 3, 2],
+}
+
+// Per-shape valid starting scale degrees (0-indexed; 0 = tonic).
+// Constrained so the resulting phrase stays in roughly MIDI 55–82 from the root.
+const SHAPE_STARTS: Record<PhraseShape, number[]> = {
+  'step-up':   [0, 1, 2, 3, 4],
+  'step-down': [3, 4, 5, 6, 7],
+  'arpeggio':  [0, 1, 2],
+  'neighbor':  [1, 2, 3, 4, 5],
+  'leap-step': [0, 1, 2, 3],
+}
+
+// Default starting octave for the root — keeps natural-letter roots in the
+// treble staff range. Flat roots (Bb, Eb) still spell cleanly at octave 4.
+const PHRASE_ROOT_OCTAVE = 4
+
+/** Generate a melodic phrase in the given key + shape. Length is fixed at 4 notes. */
+export function generatePhrase(key: string, shape: PhraseShape, startDegreeOverride?: number): Phrase {
+  const root = key.replace(/ major$/, '').replace(/ minor$/, '')
+  const scale = buildScale(root, 'major')   // e.g. ['Bb','C','D','Eb','F','G','A']
+  const rootLetter = root[0].toUpperCase()
+  const rootOctave = PHRASE_ROOT_OCTAVE
+  const rootMidi = noteNameToMidi(`${root}${rootOctave}`) ?? 60
+
+  const validStarts = SHAPE_STARTS[shape]
+  const startDegree = startDegreeOverride ?? validStarts[Math.floor(Math.random() * validStarts.length)]
+  const offsets = SHAPE_OFFSETS[shape]
+
+  const notes: PhraseNote[] = offsets.map((off) => {
+    const d = startDegree + off
+    const noteIdx = ((d % 7) + 7) % 7
+    const noteName = scale[noteIdx]
+    const startIdx = LETTER_CYCLE.indexOf(rootLetter)
+    const absIdx = startIdx + d
+    const octave = rootOctave + Math.floor(absIdx / 7)
+    const spec = specForKey(noteName, octave, key)
+    // Compute midi from the pitch class + octave (handle accidentals).
+    const midi = noteNameToMidi(`${noteName}${octave}`) ?? rootMidi
+    return { name: noteName, spec, midi }
+  })
+
+  return { notes, shape, key }
+}
+
+/** Build a staff note spec, omitting accidentals already implied by the key sig. */
+function specForKey(noteName: string, octave: number, key: string): string {
+  const accs = keySignatureAccidentals(key)
+  const letter = noteName[0]
+  const accInKey = accs.find((a) => a[0] === letter)
+  if (accInKey && accInKey === noteName) return `${letter}${octave}`
+  return `${noteName}${octave}`
+}
+
 // ---------- Order of accidentals (sharps + flats) ----------
 
 export const ORDER_OF_SHARPS: string[] = ['F#','C#','G#','D#','A#','E#','B#']

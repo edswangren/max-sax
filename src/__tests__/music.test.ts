@@ -20,6 +20,8 @@ import {
   chromaticNext,
   ORDER_OF_SHARPS,
   ORDER_OF_FLATS,
+  applyKeySignatureToLetter,
+  generatePhrase,
 } from '../utils/music'
 
 describe('normalizeNoteName', () => {
@@ -216,6 +218,53 @@ describe('chromaticNext', () => {
     expect(chromaticNext('C', 'down')).toBe('B')
     expect(chromaticNext('A', 'down')).toBe('Ab')
     expect(chromaticNext('Eb', 'down')).toBe('D')
+  })
+})
+
+describe('applyKeySignatureToLetter', () => {
+  it('alters letters that appear in the key sig', () => {
+    expect(applyKeySignatureToLetter('F', 'G major')).toBe('F#')
+    expect(applyKeySignatureToLetter('B', 'F major')).toBe('Bb')
+    expect(applyKeySignatureToLetter('E', 'Bb major')).toBe('Eb')
+    expect(applyKeySignatureToLetter('C', 'D major')).toBe('C#')
+  })
+  it('leaves letters alone when the key sig does not alter them', () => {
+    expect(applyKeySignatureToLetter('C', 'G major')).toBe('C')
+    expect(applyKeySignatureToLetter('A', 'F major')).toBe('A')
+    expect(applyKeySignatureToLetter('G', 'C major')).toBe('G')
+  })
+})
+
+describe('generatePhrase', () => {
+  it('step-up produces 4 ascending stepwise notes in the scale', () => {
+    const phrase = generatePhrase('Bb major', 'step-up', 0)
+    expect(phrase.notes).toHaveLength(4)
+    expect(phrase.notes.map((n) => n.name)).toEqual(['Bb','C','D','Eb'])
+    // MIDI strictly ascending
+    for (let i = 1; i < phrase.notes.length; i++) {
+      expect(phrase.notes[i].midi).toBeGreaterThan(phrase.notes[i - 1].midi)
+    }
+  })
+  it('step-down produces 4 descending stepwise notes', () => {
+    const phrase = generatePhrase('F major', 'step-down', 3)
+    expect(phrase.notes.map((n) => n.name)).toEqual(['Bb','A','G','F'])
+    for (let i = 1; i < phrase.notes.length; i++) {
+      expect(phrase.notes[i].midi).toBeLessThan(phrase.notes[i - 1].midi)
+    }
+  })
+  it('arpeggio is 1-3-5-8 (one octave) from the start degree', () => {
+    const phrase = generatePhrase('C major', 'arpeggio', 0)
+    expect(phrase.notes.map((n) => n.name)).toEqual(['C','E','G','C'])
+    expect(phrase.notes[3].midi - phrase.notes[0].midi).toBe(12)
+  })
+  it('staff specs omit accidentals already covered by the key sig', () => {
+    const phrase = generatePhrase('Bb major', 'step-up', 0)
+    // Bb and Eb come from the key sig; specs should NOT carry an explicit accidental
+    expect(phrase.notes[0].spec).toBe('B4')
+    expect(phrase.notes[3].spec).toBe('E5')
+    // C and D are naturals — no accidental either
+    expect(phrase.notes[1].spec).toBe('C5')
+    expect(phrase.notes[2].spec).toBe('D5')
   })
 })
 

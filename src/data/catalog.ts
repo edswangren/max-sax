@@ -34,6 +34,9 @@ export const categories: Category[] = [
       { id: 'nr-altissimo',     title: 'Altissimo basics',       blurb: 'G–C above palm F♯ — the screamer notes' },
       { id: 'nr-in-key',              title: 'Notes in a key signature',  blurb: 'F-line in G major is F♯ — apply the key sig' },
       { id: 'nr-courtesy-accidental', title: 'Courtesy & cancellation',   blurb: 'Naturals cancel key sigs — read the accidental too' },
+      { id: 'nr-phrase',              title: 'Phrase reading',            blurb: '4-note melodic phrase — name one note' },
+      { id: 'nr-phrase-sequence',     title: 'Read the whole phrase',     blurb: 'Type all 4 notes of a phrase, in order' },
+      { id: 'nr-pattern-id',          title: 'Pattern recognition',       blurb: 'Scale, arpeggio, neighbor, or leap?' },
     ],
   },
   {
