@@ -25,9 +25,9 @@ export const categories: Category[] = [
     name: 'Note Reading',
     tagline: 'Treble clef speed. The faster you read, the faster you play.',
     topics: [
-      { id: 'nr-lines',         title: 'Lines of the staff',     blurb: 'E G B D F — every good boy does fine' },
-      { id: 'nr-spaces',        title: 'Spaces of the staff',    blurb: 'F A C E' },
-      { id: 'nr-mixed',         title: 'Lines & spaces mixed',   blurb: 'All 9 staff notes, no warning' },
+      { id: 'nr-lines',         title: 'Lines of the staff',     blurb: 'Five lines + their sharps and flats' },
+      { id: 'nr-spaces',        title: 'Spaces of the staff',    blurb: 'Four spaces + accidentals' },
+      { id: 'nr-mixed',         title: 'Lines & spaces mixed',   blurb: 'All 9 staff positions, naturals + accidentals' },
       { id: 'nr-ledger-below',  title: 'Ledger lines below',     blurb: 'Down to low B♭' },
       { id: 'nr-above-staff',   title: 'Above the staff',        blurb: 'G–C above top F' },
       { id: 'nr-palm-keys',     title: 'Palm-key range',         blurb: 'D, E, F, F♯ — top of the horn' },
