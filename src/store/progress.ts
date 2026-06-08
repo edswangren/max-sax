@@ -11,6 +11,10 @@ interface TopicProgress {
   lastPracticed: string
   bestStreak: number
   byDifficulty: Partial<Record<Difficulty, DifficultyStats>>
+  /** Speed mode: fastest correct answer (ms) and running average over correct answers. */
+  bestTimeMs?: number
+  avgTimeMs?: number
+  timedCorrect?: number
 }
 
 interface ProgressStore {
@@ -65,6 +69,26 @@ export function recordSession(
   diffStats.correct += correct
   existing.byDifficulty[difficulty] = diffStats
 
+  store.byTopic[topicId] = existing
+  save(store)
+}
+
+/** Record per-problem answer times from a speed-mode run. Only correct answers count toward speed. */
+export function recordTiming(topicId: string, timesMs: number[], correctness: boolean[]) {
+  const correctTimes = timesMs.filter((_, i) => correctness[i])
+  if (correctTimes.length === 0) return
+  const store = load()
+  const existing = store.byTopic[topicId] ?? {
+    attempted: 0, correct: 0, lastPracticed: '', bestStreak: 0, byDifficulty: {},
+  }
+  const runBest = Math.min(...correctTimes)
+  existing.bestTimeMs = existing.bestTimeMs != null ? Math.min(existing.bestTimeMs, runBest) : runBest
+  const prevN = existing.timedCorrect ?? 0
+  const prevAvg = existing.avgTimeMs ?? 0
+  const newN = prevN + correctTimes.length
+  const sum = prevAvg * prevN + correctTimes.reduce((a, b) => a + b, 0)
+  existing.avgTimeMs = Math.round(sum / newN)
+  existing.timedCorrect = newN
   store.byTopic[topicId] = existing
   save(store)
 }

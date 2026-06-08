@@ -21,13 +21,14 @@ export default function CategoryIcon({ catId, className = '' }: Props) {
     'aria-hidden': true,
   }
   switch (catId) {
-    case 'note-reading':
-      // beamed eighth notes
+    case 'sight-reading':
+      // an eye reading a beamed note — "see it, play it"
       return (
         <svg {...common}>
-          <path d="M7 17V6l10-2v11" />
-          <ellipse cx="6" cy="17" rx="2.5" ry="1.8" fill="currentColor" />
-          <ellipse cx="16" cy="15" rx="2.5" ry="1.8" fill="currentColor" />
+          <path d="M2 12s3.5-5 10-5 10 5 10 5-3.5 5-10 5-10-5-10-5z" />
+          <path d="M11 13.5V8l5-1v4.5" strokeWidth="1.4" />
+          <circle cx="10" cy="13.5" r="1.4" fill="currentColor" stroke="none" />
+          <circle cx="15" cy="12.5" r="1.4" fill="currentColor" stroke="none" />
         </svg>
       )
     case 'scales-keys':

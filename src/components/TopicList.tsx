@@ -1,11 +1,11 @@
 import { useParams, Link } from 'react-router-dom'
 import { getCategory, type CategoryId } from '../data/catalog'
 import { hasTemplates } from '../templates/registry'
-import { getAccuracy } from '../store/progress'
+import { getAccuracy, getProgress } from '../store/progress'
 import CategoryIcon from './CategoryIcon'
 
 const CAT_ACCENT: Record<CategoryId, { text: string; glow: string; pill: string }> = {
-  'note-reading':  { text: 'text-brass',     glow: 'hover:shadow-[0_0_22px_rgba(245,181,15,0.28)] hover:border-brass/50',         pill: 'bg-brass/20 text-brass' },
+  'sight-reading': { text: 'text-brass',     glow: 'hover:shadow-[0_0_22px_rgba(245,181,15,0.28)] hover:border-brass/50',         pill: 'bg-brass/20 text-brass' },
   'scales-keys':   { text: 'text-royal-glow', glow: 'hover:shadow-[0_0_22px_rgba(29,78,216,0.35)] hover:border-royal/50',          pill: 'bg-royal/25 text-royal-glow' },
   'rhythm':        { text: 'text-emerald-go',glow: 'hover:shadow-[0_0_22px_rgba(52,201,126,0.28)] hover:border-emerald-go/50',    pill: 'bg-emerald-go/20 text-emerald-go' },
   'fingerings':    { text: 'text-tangerine', glow: 'hover:shadow-[0_0_22px_rgba(251,146,60,0.28)] hover:border-tangerine/50',     pill: 'bg-tangerine/20 text-tangerine' },
@@ -41,6 +41,7 @@ export default function TopicList() {
         {cat.topics.map((t) => {
           const ready = hasTemplates(t.id)
           const accuracy = getAccuracy(t.id)
+          const bestMs = getProgress(t.id)?.bestTimeMs
 
           const inner = (
             <>
@@ -51,6 +52,11 @@ export default function TopicList() {
                 <p className="text-xs text-cream/60 mt-1 truncate">{t.blurb}</p>
               </div>
               <div className="flex items-center gap-3 ml-4 shrink-0">
+                {bestMs != null && (
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-brass/20 text-brass" title="Fastest correct read">
+                    ⚡{(bestMs / 1000).toFixed(1)}s
+                  </span>
+                )}
                 {accuracy !== null && (
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                     accuracy >= 80 ? 'bg-emerald-go/20 text-emerald-go' :

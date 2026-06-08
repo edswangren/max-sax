@@ -1,18 +1,16 @@
 import type { ProblemTemplate, Difficulty } from './types'
 
-// Note Reading
-import { templates as nrLines }       from './note-reading/nr-lines'
-import { templates as nrSpaces }      from './note-reading/nr-spaces'
-import { templates as nrMixed }       from './note-reading/nr-mixed'
-import { templates as nrLedgerBelow } from './note-reading/nr-ledger-below'
-import { templates as nrAboveStaff }  from './note-reading/nr-above-staff'
-import { templates as nrPalmKeys }    from './note-reading/nr-palm-keys'
-import { templates as nrAltissimo }   from './note-reading/nr-altissimo'
-import { templates as nrInKey }       from './note-reading/nr-in-key'
-import { templates as nrCourtesy }    from './note-reading/nr-courtesy-accidental'
-import { templates as nrPhrase }      from './note-reading/nr-phrase'
-import { templates as nrPhraseSeq }   from './note-reading/nr-phrase-sequence'
-import { templates as nrPatternId }   from './note-reading/nr-pattern-id'
+// Sight Reading
+import { templates as srScan }      from './sight-reading/sr-scan'
+import { templates as srRhythm }    from './sight-reading/sr-rhythm'
+import { templates as srMelody }    from './sight-reading/sr-melody'
+import { templates as srLine }      from './sight-reading/sr-line'
+import { templates as srPatterns }  from './sight-reading/sr-patterns'
+import { templates as srIntervals } from './sight-reading/sr-intervals'
+import { templates as srWhatsNext } from './sight-reading/sr-whats-next'
+import { templates as srInContext } from './sight-reading/sr-in-context'
+import { templates as srRange }     from './sight-reading/sr-range'
+import { templates as srPerform }   from './sight-reading/sr-perform'
 
 // Scales & Keys
 import { templates as skKeysigFlats }    from './scales-keys/sk-keysig-flats'
@@ -70,9 +68,8 @@ import { templates as etTriads }        from './ear-training/et-triads'
 import { templates as etTuning }        from './ear-training/et-tuning'
 
 const allTemplates: ProblemTemplate[] = [
-  ...nrLines, ...nrSpaces, ...nrMixed, ...nrLedgerBelow, ...nrAboveStaff, ...nrPalmKeys, ...nrAltissimo,
-  ...nrInKey, ...nrCourtesy,
-  ...nrPhrase, ...nrPhraseSeq, ...nrPatternId,
+  ...srScan, ...srRhythm, ...srMelody, ...srLine, ...srPatterns,
+  ...srIntervals, ...srWhatsNext, ...srInContext, ...srRange, ...srPerform,
   ...skKeysigFlats, ...skKeysigSharps, ...skKeysigFull, ...skMajorConstruct, ...skIdentifyScale, ...skTranspose, ...skTransposeNotes, ...skNaturalMinor, ...skCircleFifths,
   ...skEnharmonic, ...skRelativeMinor, ...skChromatic, ...skOrderOfAccidentals,
   ...ryNoteValues, ...ryRests, ...ryTimesigMath, ...ryDotted, ...ryTiesSlurs, ...ryCounting, ...ryCompound, ...ryTriplets, ...rySightRead,

@@ -1,5 +1,5 @@
 export type CategoryId =
-  | 'note-reading'
+  | 'sight-reading'
   | 'scales-keys'
   | 'rhythm'
   | 'fingerings'
@@ -21,22 +21,20 @@ export interface Category {
 
 export const categories: Category[] = [
   {
-    id: 'note-reading',
-    name: 'Note Reading',
-    tagline: 'Treble clef speed. The faster you read, the faster you play.',
+    id: 'sight-reading',
+    name: 'Sight Reading',
+    tagline: 'See it. Hear it in your head. Play it cold.',
     topics: [
-      { id: 'nr-lines',         title: 'Lines of the staff',     blurb: 'Five lines + their sharps and flats' },
-      { id: 'nr-spaces',        title: 'Spaces of the staff',    blurb: 'Four spaces + accidentals' },
-      { id: 'nr-mixed',         title: 'Lines & spaces mixed',   blurb: 'All 9 staff positions, naturals + accidentals' },
-      { id: 'nr-ledger-below',  title: 'Ledger lines below',     blurb: 'Down to low B♭' },
-      { id: 'nr-above-staff',   title: 'Above the staff',        blurb: 'G–C above top F' },
-      { id: 'nr-palm-keys',     title: 'Palm-key range',         blurb: 'D, E, F, F♯ — top of the horn' },
-      { id: 'nr-altissimo',     title: 'Altissimo basics',       blurb: 'G–C above palm F♯ — the screamer notes' },
-      { id: 'nr-in-key',              title: 'Notes in a key signature',  blurb: 'F-line in G major is F♯ — apply the key sig' },
-      { id: 'nr-courtesy-accidental', title: 'Courtesy & cancellation',   blurb: 'Naturals cancel key sigs — read the accidental too' },
-      { id: 'nr-phrase',              title: 'Phrase reading',            blurb: '4-note melodic phrase — name one note' },
-      { id: 'nr-phrase-sequence',     title: 'Read the whole phrase',     blurb: 'Type all 4 notes of a phrase, in order' },
-      { id: 'nr-pattern-id',          title: 'Pattern recognition',       blurb: 'Scale, arpeggio, neighbor, or leap?' },
+      { id: 'sr-scan',        title: 'Scan the excerpt',          blurb: 'STARS pre-read: key, range, accidentals' },
+      { id: 'sr-rhythm',      title: 'Rhythm reading',            blurb: 'Match the counting — rests + dotted notes' },
+      { id: 'sr-melody',      title: 'Read the melody',           blurb: 'Pitch + rhythm together, in a key' },
+      { id: 'sr-line',        title: 'Read the whole line',       blurb: 'Type every note of the excerpt, in order' },
+      { id: 'sr-patterns',    title: 'Pattern recognition',       blurb: 'Scale, arpeggio, neighbor, or leap?' },
+      { id: 'sr-intervals',   title: 'Read the leaps',            blurb: 'Name the interval between two notes' },
+      { id: 'sr-whats-next',  title: 'Eyes ahead',                blurb: 'Predict the next note from the shape' },
+      { id: 'sr-in-context',  title: 'Keys & accidentals',        blurb: 'Apply the key sig; spot the courtesy ♮' },
+      { id: 'sr-range',       title: 'Full-range reading',        blurb: 'Low B♭ to altissimo — read it fast' },
+      { id: 'sr-perform',     title: 'Perform it',                blurb: 'Study, count-off, play it in tempo' },
     ],
   },
   {

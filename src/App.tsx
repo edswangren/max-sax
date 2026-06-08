@@ -7,6 +7,9 @@ import SessionHistory from './components/SessionHistory'
 import WeakSpots from './components/WeakSpots'
 import Settings from './components/Settings'
 import Metronome from './components/Metronome'
+import { runMigrations } from './store/migrate'
+
+runMigrations()
 
 const router = createHashRouter([
   {

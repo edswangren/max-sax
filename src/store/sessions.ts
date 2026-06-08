@@ -13,6 +13,9 @@ export interface Session {
   totalProblems: number
   correct: number
   mistakes: Mistake[]
+  /** Per-problem answer times (ms) when speed mode was on. Optional — old records lack it. */
+  responseTimesMs?: number[]
+  speedMode?: boolean
 }
 
 interface SessionStore {
