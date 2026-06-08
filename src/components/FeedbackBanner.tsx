@@ -9,6 +9,8 @@ interface Props {
   onNext: () => void
   checkWork?: string
   audioSpec?: AudioSpec
+  /** Perform-mode self-grade — show encouragement, not a right/wrong verdict. */
+  selfAssess?: boolean
 }
 
 const correctQuips = [
@@ -35,18 +37,30 @@ const wrongQuips = [
   "Brain fingerings got crossed. Happens.",
 ]
 
-export default function FeedbackBanner({ correct, correctAnswer, userAnswer, onNext, checkWork, audioSpec }: Props) {
+const selfAssessMsg: Record<string, string> = {
+  nailed: 'Clean read. Lock it in and level up.',
+  slips: 'Logged. Slips are reps — run another and tighten it.',
+  wreck: 'All good. Hear it below, then take the next one slower.',
+}
+
+export default function FeedbackBanner({ correct, correctAnswer, userAnswer, onNext, checkWork, audioSpec, selfAssess }: Props) {
+  // Perform mode: green only on "nailed", neutral amber otherwise — never a "wrong".
+  const positive = selfAssess ? userAnswer === 'nailed' : correct
   return (
     <div
       className={`mt-4 rounded-xl border ${
-        correct
+        positive
           ? 'bg-emerald-go/10 border-emerald-go/40 text-emerald-go'
-          : 'bg-maroon/10 border-maroon/40 text-maroon'
+          : selfAssess
+            ? 'bg-amber-400/10 border-amber-400/40 text-amber-400'
+            : 'bg-maroon/10 border-maroon/40 text-maroon'
       }`}
     >
       <div className="flex justify-between items-center p-4 gap-3">
         <div className="min-w-0">
-          {correct ? (
+          {selfAssess ? (
+            <p className="font-bold text-lg">{selfAssessMsg[userAnswer] ?? 'Logged.'}</p>
+          ) : correct ? (
             <p className="font-bold text-lg">{pick(correctQuips)}</p>
           ) : (
             <div>
@@ -62,9 +76,11 @@ export default function FeedbackBanner({ correct, correctAnswer, userAnswer, onN
           onClick={onNext}
           autoFocus
           className={`border rounded-lg px-4 py-2 text-sm font-bold transition-colors shrink-0 ${
-            correct
+            positive
               ? 'border-emerald-go text-emerald-go hover:bg-emerald-go/20'
-              : 'border-maroon text-maroon hover:bg-maroon/20'
+              : selfAssess
+                ? 'border-amber-400 text-amber-400 hover:bg-amber-400/20'
+                : 'border-maroon text-maroon hover:bg-maroon/20'
           }`}
         >
           Next &rarr;

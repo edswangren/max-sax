@@ -2,11 +2,12 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import ProblemDisplay from './ProblemDisplay'
 import AnswerInput from './AnswerInput'
+import PerformPanel from './PerformPanel'
 import FeedbackBanner from './FeedbackBanner'
 import DifficultySelector from './DifficultySelector'
 import { getTemplatesForTopic, hasTemplates } from '../templates/registry'
 import { checkAnswer } from '../templates/validator'
-import { recordSession } from '../store/progress'
+import { recordSession, recordTiming } from '../store/progress'
 import { saveSession, type Mistake } from '../store/sessions'
 import { getTopic } from '../data/catalog'
 import type { Difficulty, GeneratedProblem } from '../templates/types'
@@ -14,6 +15,7 @@ import { pick, generateUnique } from '../utils/random'
 import Confetti from './Confetti'
 
 const TOTAL_PROBLEMS = 10
+const SPEED_MS = 12_000 // per-question clock in speed mode
 
 function generateProblems(topicId: string, difficulty: Difficulty): GeneratedProblem[] {
   const templates = getTemplatesForTopic(topicId, difficulty)
@@ -31,11 +33,18 @@ function generateProblems(topicId: string, difficulty: Difficulty): GeneratedPro
 }
 
 export default function PracticeSession() {
+  // Key on topicId so switching topics always remounts with fresh state
+  // (score, difficulty/speed deep-link params, problem set).
   const { topicId = '' } = useParams()
+  return <PracticeSessionInner key={topicId} topicId={topicId} />
+}
+
+function PracticeSessionInner({ topicId }: { topicId: string }) {
   const [searchParams] = useSearchParams()
   const initialDifficulty = (searchParams.get('d') as Difficulty) || 'medium'
 
   const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty)
+  const [speedMode, setSpeedMode] = useState(searchParams.get('speed') === '1')
   const [sessionKey, setSessionKey] = useState(0)
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -48,25 +57,36 @@ export default function PracticeSession() {
   const [feedback, setFeedback] = useState<{ correct: boolean; userAnswer: string } | null>(null)
   const [score, setScore] = useState(0)
   const [finished, setFinished] = useState(false)
+  const [remaining, setRemaining] = useState(SPEED_MS)
   const mistakesRef = useRef<Mistake[]>([])
   const savedRef = useRef(false)
+  const questionStartRef = useRef(0)
+  const timesRef = useRef<number[]>([])
+  const correctRef = useRef<boolean[]>([])
 
   const current = problems[currentIndex]
   const topic = getTopic(topicId)
+  const isPerform = current?.kind === 'perform'
+  const speedActive = speedMode && !isPerform && !!current && !feedback
 
   useEffect(() => {
     if (finished && !savedRef.current) {
       savedRef.current = true
       recordSession(topicId, difficulty, TOTAL_PROBLEMS, score)
+      if (speedMode && timesRef.current.length) {
+        recordTiming(topicId, timesRef.current, correctRef.current)
+      }
       saveSession({
         topicId,
         difficulty,
         totalProblems: TOTAL_PROBLEMS,
         correct: score,
         mistakes: mistakesRef.current,
+        responseTimesMs: speedMode ? timesRef.current : undefined,
+        speedMode: speedMode || undefined,
       })
     }
-  }, [finished, topicId, difficulty, score])
+  }, [finished, topicId, difficulty, score, speedMode])
 
   const reset = useCallback(() => {
     setCurrentIndex(0)
@@ -74,6 +94,8 @@ export default function PracticeSession() {
     setScore(0)
     setFinished(false)
     mistakesRef.current = []
+    timesRef.current = []
+    correctRef.current = []
     savedRef.current = false
     setSessionKey((k) => k + 1)
   }, [])
@@ -83,9 +105,18 @@ export default function PracticeSession() {
     reset()
   }, [reset])
 
+  const handleSpeedToggle = useCallback(() => {
+    setSpeedMode((v) => !v)
+    reset()
+  }, [reset])
+
   const handleSubmit = useCallback((answer: string) => {
     if (feedback || !current) return
     const correct = checkAnswer(answer, current.correctAnswer, current.answerFormat, current.acceptableAnswers)
+    if (speedMode && current.kind !== 'perform') {
+      timesRef.current.push(performance.now() - questionStartRef.current)
+      correctRef.current.push(correct)
+    }
     if (correct) {
       setScore((s) => s + 1)
     } else {
@@ -95,7 +126,7 @@ export default function PracticeSession() {
       })
     }
     setFeedback({ correct, userAnswer: answer })
-  }, [current, feedback])
+  }, [current, feedback, speedMode])
 
   const handleNext = useCallback(() => {
     if (currentIndex + 1 >= TOTAL_PROBLEMS) {
@@ -105,6 +136,25 @@ export default function PracticeSession() {
       setFeedback(null)
     }
   }, [currentIndex])
+
+  // Speed mode: per-question countdown; on expiry, auto-submit a wrong sentinel.
+  useEffect(() => {
+    if (!speedActive) return
+    questionStartRef.current = performance.now()
+    setRemaining(SPEED_MS)
+    const id = window.setInterval(() => {
+      const left = SPEED_MS - (performance.now() - questionStartRef.current)
+      if (left <= 0) {
+        window.clearInterval(id)
+        setRemaining(0)
+        handleSubmit('—')
+      } else {
+        setRemaining(left)
+      }
+    }, 100)
+    return () => window.clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [speedActive, currentIndex, sessionKey])
 
   if (!hasTemplates(topicId)) {
     return (
@@ -188,7 +238,22 @@ export default function PracticeSession() {
     <div>
       <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
         <h1 className="text-xl font-bold">{topic?.title ?? topicId}</h1>
-        <DifficultySelector value={difficulty} onChange={handleDifficultyChange} />
+        <div className="flex items-center gap-2">
+          <DifficultySelector value={difficulty} onChange={handleDifficultyChange} />
+          {!isPerform && (
+            <button
+              onClick={handleSpeedToggle}
+              title="Race the clock"
+              className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors ${
+                speedMode
+                  ? 'bg-brass text-ink border-brass shadow-[0_0_14px_rgba(245,181,15,0.4)]'
+                  : 'border-ink-lighter text-cream/70 hover:border-brass/50'
+              }`}
+            >
+              ⚡ Speed
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex justify-between items-center mb-2 text-sm text-cream/70">
@@ -201,7 +266,25 @@ export default function PracticeSession() {
         totalProblems={TOTAL_PROBLEMS}
       />
 
-      {!feedback && (
+      {speedActive && (
+        <div className="mt-3" aria-hidden>
+          <div className="h-1.5 bg-ink-lighter rounded-full overflow-hidden">
+            <div
+              className="h-full transition-[width] duration-100 ease-linear"
+              style={{
+                width: `${(remaining / SPEED_MS) * 100}%`,
+                background: remaining < SPEED_MS * 0.3 ? '#7d2027' : '#f5b50f',
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {!feedback && current.kind === 'perform' && (
+        <PerformPanel key={currentIndex} problem={current} onSubmit={handleSubmit} />
+      )}
+
+      {!feedback && current.kind !== 'perform' && (
         <AnswerInput
           onSubmit={handleSubmit}
           answerFormat={current.answerFormat}
@@ -217,6 +300,7 @@ export default function PracticeSession() {
           onNext={handleNext}
           checkWork={current.checkWork}
           audioSpec={current.feedbackAudioSpec}
+          selfAssess={current.answerFormat === 'self-assess'}
         />
       )}
     </div>

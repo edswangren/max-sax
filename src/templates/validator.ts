@@ -38,6 +38,7 @@ export function checkAnswer(
     case 'multiple-choice':
     case 'fingering-pick':
     case 'text':
+    case 'self-assess':
       return stripSpaces(cleaned) === stripSpaces(expected)
 
     default:

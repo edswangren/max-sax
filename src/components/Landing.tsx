@@ -15,7 +15,7 @@ interface CatStyle {
 }
 
 const STYLES: Record<CategoryId, CatStyle> = {
-  'note-reading':  { accent: 'text-brass',     bg: 'bg-brass/10',     border: 'border-brass/40',     pill: 'bg-brass/20 text-brass',         glow: 'hover:shadow-[0_0_28px_rgba(245,181,15,0.35)]' },
+  'sight-reading': { accent: 'text-brass',     bg: 'bg-brass/10',     border: 'border-brass/40',     pill: 'bg-brass/20 text-brass',         glow: 'hover:shadow-[0_0_28px_rgba(245,181,15,0.35)]' },
   'scales-keys':   { accent: 'text-royal-glow',bg: 'bg-royal/15',     border: 'border-royal/50',     pill: 'bg-royal/25 text-royal-glow',     glow: 'hover:shadow-[0_0_28px_rgba(29,78,216,0.4)]' },
   'rhythm':        { accent: 'text-emerald-go',bg: 'bg-emerald-go/10',border: 'border-emerald-go/35',pill: 'bg-emerald-go/20 text-emerald-go',glow: 'hover:shadow-[0_0_28px_rgba(52,201,126,0.32)]' },
   'fingerings':    { accent: 'text-tangerine', bg: 'bg-tangerine/10', border: 'border-tangerine/35', pill: 'bg-tangerine/20 text-tangerine',  glow: 'hover:shadow-[0_0_28px_rgba(251,146,60,0.32)]' },

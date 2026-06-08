@@ -1,6 +1,8 @@
 // Music utilities — note/interval/key manipulation
 // Scientific pitch notation: C4 = MIDI 60
 
+import type { Difficulty, AudioSpec, Clef } from '../templates/types'
+
 export type PitchClass =
   | 'C' | 'C#' | 'Db' | 'D' | 'D#' | 'Eb' | 'E'
   | 'F' | 'F#' | 'Gb' | 'G' | 'G#' | 'Ab' | 'A' | 'A#' | 'Bb' | 'B'
@@ -418,6 +420,309 @@ function specForKey(noteName: string, octave: number, key: string): string {
   const accInKey = accs.find((a) => a[0] === letter)
   if (accInKey && accInKey === noteName) return `${letter}${octave}`
   return `${noteName}${octave}`
+}
+
+// ---------- Multi-bar excerpt generator (sight reading) ----------
+
+export type RhythmComplexity = 'plain' | 'mixed' | 'syncopated'
+
+export interface ExcerptOptions {
+  keys: string[]
+  bars: number
+  timeSignature?: string          // default '4/4'
+  rhythm: RhythmComplexity
+  rangeLowMidi?: number
+  rangeHighMidi?: number
+  leapMax?: number                // max semitone jump between consecutive notes
+  accidentalDensity?: number      // 0..1 chance the excerpt carries one chromatic accidental
+  clef?: Clef
+  refBpm?: number                 // tempo for audioSpec playback (default 80)
+}
+
+export interface ExcerptNote {
+  name: string        // pitch class, e.g. 'Bb' / 'F#'
+  spec: string        // staff token pitch, e.g. 'B4' (accidental omitted if in key sig)
+  midi: number
+  durBeats: number
+  durCode: string     // 'q', 'h', 'q.', '8' ...
+  bar: number         // 0-indexed
+  beat: number        // 1-based beat position within the bar
+  isRest: boolean
+  altered: boolean    // explicit (non-key) accidental drawn on this note
+  index: number       // index among SOUNDING notes (rests excluded); -1 for rests
+}
+
+export interface Excerpt {
+  key: string
+  timeSignature: string
+  bars: number
+  notes: ExcerptNote[]      // includes rests
+  sounding: ExcerptNote[]   // notes only, in order
+  staffNotes: string        // ready for StaffSpec.notes (with | / rest / dot tokens)
+  vexKey: string
+  width: number
+  highestIndex: number      // into sounding
+  lowestIndex: number
+  accidentalCount: number   // printed accidentals (explicit, drawn on notes)
+  alteredIndex: number      // index into sounding of the chromatic note, or -1
+  audioSpec: AudioSpec
+}
+
+const DUR_BEATS: Record<string, number> = { w: 4, h: 2, q: 1, '8': 0.5, '16': 0.25 }
+
+interface Slot { base: string; dotted: boolean; isRest: boolean; beats: number }
+
+function parseSlot(tok: string): Slot {
+  const isRest = tok.endsWith('r')
+  const core = isRest ? tok.slice(0, -1) : tok
+  const dotted = core.endsWith('.')
+  const base = dotted ? core.slice(0, -1) : core
+  const beats = DUR_BEATS[base] * (dotted ? 1.5 : 1)
+  return { base, dotted, isRest, beats }
+}
+
+// Per-bar rhythm banks (4/4, each row sums to 4 beats).
+const RHYTHM_BANK: Record<RhythmComplexity, string[][]> = {
+  plain: [
+    ['q', 'q', 'q', 'q'],
+    ['h', 'q', 'q'],
+    ['q', 'q', 'h'],
+    ['h', 'h'],
+    ['q', 'h', 'q'],
+    ['w'],
+  ],
+  mixed: [
+    ['q', '8', '8', 'q', 'q'],
+    ['8', '8', 'q', 'q', 'q'],
+    ['q', 'q', '8', '8', 'q'],
+    ['q.', '8', 'q', 'q'],
+    ['q', 'q', 'q', 'qr'],
+    ['h', '8', '8', 'q'],
+    ['8', '8', '8', '8', 'h'],
+  ],
+  syncopated: [
+    ['8', 'q', '8', 'q', 'q'],
+    ['8', '8', '8', '8', '8', '8', '8', '8'],
+    ['q.', '8', '8', '8', 'q'],
+    ['16', '16', '8', 'q', 'q', 'q'],
+    ['8r', '8', 'q', 'q', 'q'],
+    ['q', '8', '8', '8', '8', 'q'],
+    ['8', '8', 'q', '8r', '8', 'q'],
+  ],
+}
+
+interface RawNote { name: string; spec: string; midi: number; altered: boolean }
+
+function noteAtDegree(
+  deg: number, scale: string[], rootLetter: string, rootOctave: number, key: string, alter = 0,
+): RawNote {
+  const noteName = scale[((deg % 7) + 7) % 7]
+  const startIdx = LETTER_CYCLE.indexOf(rootLetter)
+  const octave = rootOctave + Math.floor((startIdx + deg) / 7)
+  if (alter === 0) {
+    const spec = specForKey(noteName, octave, key)
+    return { name: noteName, spec, midi: noteNameToMidi(`${noteName}${octave}`) ?? 60, altered: false }
+  }
+  // Chromatic alteration → explicit accidental (used by sr-in-context).
+  const letter = noteName[0]
+  const acc = noteName.slice(1)
+  let newName = noteName
+  if (alter > 0) newName = acc === 'b' ? letter : acc === '' ? letter + '#' : noteName
+  else newName = acc === '#' ? letter : acc === '' ? letter + 'b' : noteName
+  if (newName === noteName) {
+    const spec = specForKey(noteName, octave, key)
+    return { name: noteName, spec, midi: noteNameToMidi(`${noteName}${octave}`) ?? 60, altered: false }
+  }
+  const keyAltersLetter = keySignatureAccidentals(key).some((a) => a[0] === letter)
+  const newAcc = newName.slice(1)
+  const specAcc = newAcc === '' && keyAltersLetter ? 'n' : newAcc
+  return {
+    name: newName,
+    spec: `${letter}${specAcc}${octave}`,
+    midi: noteNameToMidi(`${newName}${octave}`) ?? 60,
+    altered: true,
+  }
+}
+
+/** Generate a musically valid multi-bar melodic excerpt for sight-reading drills. */
+export function generateExcerpt(opts: ExcerptOptions): Excerpt {
+  const timeSignature = opts.timeSignature ?? '4/4'
+  const key = opts.keys[Math.floor(Math.random() * opts.keys.length)]
+  const root = key.replace(/ major$/, '').replace(/ minor$/, '')
+  const scale = buildScale(root, 'major')
+  const rootLetter = root[0].toUpperCase()
+  const low = opts.rangeLowMidi ?? SAX_RANGE.STAFF_BOTTOM
+  const high = opts.rangeHighMidi ?? SAX_RANGE.STAFF_TOP
+  const leapMax = opts.leapMax ?? 7
+  const refBpm = opts.refBpm ?? 80
+
+  // Find a starting octave so the tonic-region degrees sit inside the range.
+  let rootOctave = PHRASE_ROOT_OCTAVE
+  for (let o = 2; o <= 7; o++) {
+    const m = noteNameToMidi(`${root}${o}`)
+    if (m != null && m >= low && m <= (low + high) / 2 + 2) { rootOctave = o; break }
+  }
+
+  const inRange = (deg: number) => {
+    const m = noteAtDegree(deg, scale, rootLetter, rootOctave, key).midi
+    return m >= low && m <= high
+  }
+
+  // Choose a start degree near the centre of the range.
+  const mid = (low + high) / 2
+  const starts: { deg: number; dist: number }[] = []
+  for (let d = -14; d <= 21; d++) {
+    if (!inRange(d)) continue
+    const m = noteAtDegree(d, scale, rootLetter, rootOctave, key).midi
+    starts.push({ deg: d, dist: Math.abs(m - mid) })
+  }
+  starts.sort((a, b) => a.dist - b.dist)
+  const startPool = starts.slice(0, Math.min(5, starts.length))
+  let deg = startPool.length ? startPool[Math.floor(Math.random() * startPool.length)].deg : 0
+
+  // Build rhythm: one bank row per bar.
+  const bank = RHYTHM_BANK[opts.rhythm]
+  const slots: { slot: Slot; bar: number; beat: number }[] = []
+  for (let bar = 0; bar < opts.bars; bar++) {
+    const row = bank[Math.floor(Math.random() * bank.length)]
+    let beat = 1
+    for (const tok of row) {
+      const slot = parseSlot(tok)
+      slots.push({ slot, bar, beat })
+      beat += slot.beats
+    }
+  }
+
+  // Walk degrees for the sounding slots.
+  const STEP_CHOICES = [-2, -1, -1, 1, 1, 2]
+  const LEAP_CHOICES = [-4, -3, 3, 4]
+  const notes: ExcerptNote[] = []
+  let soundingIdx = 0
+  let first = true
+  let prevMidi = noteAtDegree(deg, scale, rootLetter, rootOctave, key).midi
+  for (const { slot, bar, beat } of slots) {
+    if (slot.isRest) {
+      notes.push({
+        name: '', spec: '', midi: 0, durBeats: slot.beats,
+        durCode: slot.base + (slot.dotted ? '.' : ''),
+        bar, beat, isRest: true, altered: false, index: -1,
+      })
+      continue
+    }
+    if (!first) {
+      const useLeap = Math.random() < 0.2 && leapMax >= 3
+      const pool = useLeap ? [...LEAP_CHOICES, ...STEP_CHOICES] : STEP_CHOICES
+      const valid = pool.filter((step) => {
+        const nd = deg + step
+        if (!inRange(nd)) return false
+        const m = noteAtDegree(nd, scale, rootLetter, rootOctave, key).midi
+        return Math.abs(m - prevMidi) <= leapMax
+      })
+      const choices = valid.length ? valid : STEP_CHOICES.filter((s) => inRange(deg + s))
+      const step = choices.length ? choices[Math.floor(Math.random() * choices.length)] : 0
+      deg += step
+    }
+    first = false
+    const rn = noteAtDegree(deg, scale, rootLetter, rootOctave, key)
+    prevMidi = rn.midi
+    notes.push({
+      name: rn.name, spec: rn.spec, midi: rn.midi, durBeats: slot.beats,
+      durCode: slot.base + (slot.dotted ? '.' : ''),
+      bar, beat, isRest: false, altered: false, index: soundingIdx++,
+    })
+  }
+
+  // Optionally inject one chromatic accidental on an interior sounding note.
+  let alteredSoundingIndex = -1
+  if (opts.accidentalDensity && Math.random() < opts.accidentalDensity) {
+    const interior = notes.filter((n) => !n.isRest && n.index > 0)
+    if (interior.length) {
+      const target = interior[Math.floor(Math.random() * interior.length)]
+      // Recover the degree of this note isn't tracked; alter via re-spelling from its name.
+      const dir: 1 | -1 = Math.random() < 0.5 ? 1 : -1
+      const altered = alterSpelling(target, key, dir, low, high)
+      if (altered) {
+        target.name = altered.name
+        target.spec = altered.spec
+        target.midi = altered.midi
+        target.altered = true
+        alteredSoundingIndex = target.index
+      }
+    }
+  }
+
+  // Assemble staffNotes (tokens + barlines).
+  const tokens: string[] = []
+  let curBar = 0
+  for (const n of notes) {
+    if (n.bar !== curBar) { tokens.push('|'); curBar = n.bar }
+    if (n.isRest) tokens.push(`${n.durCode}r`)
+    else tokens.push(`${n.spec}/${n.durCode}`)
+  }
+  const staffNotes = tokens.join(',')
+
+  const sounding = notes.filter((n) => !n.isRest)
+  let highestIndex = 0, lowestIndex = 0
+  sounding.forEach((n, i) => {
+    if (n.midi > sounding[highestIndex].midi) highestIndex = i
+    if (n.midi < sounding[lowestIndex].midi) lowestIndex = i
+  })
+  const accidentalCount = sounding.filter((n) => /[#bn]/.test(n.spec.replace(/-?\d+$/, ''))).length
+
+  const audioSpec: AudioSpec = {
+    notes: sounding.map((n) => ({ midi: n.midi, durationMs: Math.round(n.durBeats * (60000 / refBpm)) })),
+    timbre: 'reed',
+    gapMs: 0,
+  }
+
+  return {
+    key, timeSignature, bars: opts.bars, notes, sounding, staffNotes,
+    vexKey: vexKeySignature(key),
+    width: Math.min(720, 130 + opts.bars * 120),
+    highestIndex, lowestIndex, accidentalCount,
+    alteredIndex: alteredSoundingIndex, audioSpec,
+  }
+}
+
+/** Re-spell an already-placed note up/down a semitone with an explicit accidental. */
+function alterSpelling(
+  n: ExcerptNote, key: string, dir: 1 | -1, low: number, high: number,
+): { name: string; spec: string; midi: number } | null {
+  const letter = n.name[0]
+  const acc = n.name.slice(1)
+  let newName = n.name
+  if (dir > 0) newName = acc === 'b' ? letter : acc === '' ? letter + '#' : n.name
+  else newName = acc === '#' ? letter : acc === '' ? letter + 'b' : n.name
+  if (newName === n.name) return null
+  const octave = parseInt(n.spec.match(/-?\d+$/)?.[0] ?? '4', 10)
+  const midi = noteNameToMidi(`${newName}${octave}`)
+  if (midi == null || midi < low || midi > high) return null
+  const keyAltersLetter = keySignatureAccidentals(key).some((a) => a[0] === letter)
+  const newAcc = newName.slice(1)
+  const specAcc = newAcc === '' && keyAltersLetter ? 'n' : newAcc
+  return { name: newName, spec: `${letter}${specAcc}${octave}`, midi }
+}
+
+/** Difficulty → excerpt options. Topics may override individual fields. */
+export function excerptOptionsFor(d: Difficulty): ExcerptOptions {
+  if (d === 'easy') {
+    return {
+      keys: ['C major', 'F major', 'G major'], bars: 2, rhythm: 'plain', leapMax: 4,
+      rangeLowMidi: SAX_RANGE.STAFF_BOTTOM, rangeHighMidi: SAX_RANGE.STAFF_TOP,
+    }
+  }
+  if (d === 'medium') {
+    return {
+      keys: ['C major', 'F major', 'G major', 'Bb major', 'Eb major', 'D major'], bars: 3,
+      rhythm: 'mixed', leapMax: 7, accidentalDensity: 0.15,
+      rangeLowMidi: SAX_RANGE.LOW_C, rangeHighMidi: SAX_RANGE.PALM_D,
+    }
+  }
+  return {
+    keys: ['Bb major', 'Eb major', 'Ab major', 'A major', 'E major'], bars: 4,
+    rhythm: 'syncopated', leapMax: 12, accidentalDensity: 0.3,
+    rangeLowMidi: SAX_RANGE.LOW_BB, rangeHighMidi: SAX_RANGE.PALM_F_SHARP,
+  }
 }
 
 // ---------- Order of accidentals (sharps + flats) ----------
