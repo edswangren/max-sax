@@ -2,6 +2,10 @@
 
 Saxophone-practice drill app for Max. Sibling of MaxMATH. Self-paced jump-in/out: pick a topic → 10 problems → done.
 
+## Privacy
+
+Public repo and public site. "Max" is the only personal detail allowed anywhere: code, UI copy, docs, commit messages. No surname, school, mascot, ensemble, chair, grade, age, or location.
+
 ## Stack snapshot
 
 - React 19 + TypeScript + Vite 8 + Tailwind v4

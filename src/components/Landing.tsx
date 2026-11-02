@@ -4,7 +4,6 @@ import { hasTemplates } from '../templates/registry'
 import { getAllProgress } from '../store/progress'
 import { pick } from '../utils/random'
 import CategoryIcon from './CategoryIcon'
-import BandLogo from './BandLogo'
 
 interface CatStyle {
   accent: string
@@ -26,7 +25,7 @@ const STYLES: Record<CategoryId, CatStyle> = {
 const greetings = [
   "Let's get it, Max.",
   "Sax time. Pull up the reed.",
-  "last chair? Not for long.",
+  "Last chair? Not for long.",
   "The band's secret weapon.",
   "Max in the house.",
   "Daily reps. That's how chairs flip.",
@@ -87,28 +86,6 @@ export default function Landing() {
 
   return (
     <div>
-      {/* band pride banner — band + band */}
-      <div className="mb-6 rounded-2xl overflow-hidden border-2 border-brass/60 shadow-[0_0_32px_rgba(29,78,216,0.3)] animate-pop-in">
-        <div className="bg-gradient-to-br from-royal-dim via-royal to-royal-glow p-5 flex items-center gap-4 relative">
-          {/* Subtle gold piping at top and bottom — band-uniform vibe */}
-          <div className="absolute inset-x-0 top-0 h-1 bg-brass" />
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-brass" />
-
-          <BandLogo size={64} variant="gold" className="shrink-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]" />
-          <div className="min-w-0">
-            <p className="text-brass text-[10px] sm:text-xs font-black uppercase tracking-[0.18em] leading-none">
-              MaxSAX
-            </p>
-            <h2 className="text-white text-xl sm:text-2xl font-black leading-tight mt-0.5">
-              <span className="text-brass">Max</span>SAX
-            </h2>
-            <p className="text-brass-glow text-xs sm:text-sm font-bold mt-0.5">
-              Band practice
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Greeting */}
       <div className="mb-6">
         <h1 className="text-3xl sm:text-4xl font-black leading-tight mb-2">{greeting}</h1>
@@ -146,7 +123,7 @@ export default function Landing() {
                 </div>
                 <span className={`text-2xl ${s.accent} opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all`}>→</span>
               </div>
-              {/* Royal+gold progress bar — band colors */}
+              {/* Royal+gold progress bar */}
               <div className="h-1.5 bg-ink-lighter">
                 <div
                   className="h-full bg-gradient-to-r from-royal via-brass to-brass-glow transition-all"

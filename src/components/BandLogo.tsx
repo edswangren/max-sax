@@ -4,9 +4,7 @@ interface Props {
   variant?: 'gold' | 'royal' | 'current'
 }
 
-// band patch — royal-blue shield with a gold lyre
-// (universal symbol of band programs) plus a small star above for band cred.
-// Reads as a band/marching-band uniform patch.
+// App logo — shield with a gold lyre and a small star above.
 export default function BandLogo({ size = 56, className = '', variant = 'gold' }: Props) {
   // `variant` controls the dominant color flip:
   //   gold  = gold shield, royal lyre (good on dark backgrounds)
@@ -22,7 +20,7 @@ export default function BandLogo({ size = 56, className = '', variant = 'gold' }
       height={size}
       viewBox="0 0 60 60"
       fill="none"
-      aria-label="band"
+      aria-label="MaxSAX"
       className={className}
     >
       {/* Shield */}
@@ -75,7 +73,7 @@ export default function BandLogo({ size = 56, className = '', variant = 'gold' }
         {/* Base where strings attach */}
         <rect x="22" y="41" width="16" height="3" rx="1.5" fill={ornament} stroke="none" />
 
-        {/* Small 5-point star above the lyre — band flourish */}
+        {/* Small 5-point star above the lyre */}
         <path
           d="M30 7.5
              L31.4 11
